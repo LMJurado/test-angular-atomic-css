@@ -14,6 +14,7 @@ interface User {
 @Injectable()
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
+  private readonly demoUsername = '123456';
   private _user: User | null = null;
   private useMockData = true; // Usar datos locales cuando el backend no esté disponible
   private registeredUsers: any[] = [];
@@ -27,6 +28,8 @@ export class AuthService {
     if (usersStore) {
       this.registeredUsers = JSON.parse(usersStore);
     }
+
+    this.ensureDemoUser();
   }
 
   get user(): User | null {
@@ -52,8 +55,7 @@ export class AuthService {
       usernameOrEmail, password
     }).pipe(
       tap(user => {
-        this._user = user;
-        localStorage.setItem('user', JSON.stringify(user));
+        this.persistAuthenticatedUser(user);
       }),
       catchError(error => {
         // Si el backend falla, intentar con datos locales
@@ -139,8 +141,7 @@ export class AuthService {
         }
 
         const { password: _, ...userWithoutPassword } = user;
-        this._user = userWithoutPassword;
-        localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+        this.persistAuthenticatedUser(userWithoutPassword);
       }),
       catchError(error => {
         return throwError(() => new Error('Credenciales incorrectas'));
@@ -194,5 +195,58 @@ export class AuthService {
     };
     this.registeredUsers.push(newUser);
     localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
+  }
+
+  private ensureDemoUser(): void {
+    const demoUser = {
+      nombre: 'Usuario de prueba',
+      apellido: 'Certificados',
+      username: this.demoUsername,
+      email: 'prueba@academia.local',
+      institucion: 'Universidad de Nariño',
+      password: '123456'
+    };
+    const existingIndex = this.registeredUsers.findIndex(
+      user => user.username === this.demoUsername
+    );
+
+    if (existingIndex === -1) {
+      this.registeredUsers.push(demoUser);
+    } else {
+      this.registeredUsers[existingIndex] = {
+        ...this.registeredUsers[existingIndex],
+        ...demoUser
+      };
+    }
+
+    localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
+    this.saveDemoProgress();
+  }
+
+  private persistAuthenticatedUser(user: User): void {
+    this._user = user;
+    localStorage.setItem('user', JSON.stringify(user));
+
+    if (user.username === this.demoUsername) {
+      this.saveDemoProgress();
+    }
+  }
+
+  private saveDemoProgress(): void {
+    const completedTopics: Record<string, number[]> = {};
+    const completedActivities: Record<string, string[]> = {};
+
+    for (let moduleId = 1; moduleId <= 3; moduleId++) {
+      completedTopics[moduleId] = [1, 2, 3];
+      for (let topicId = 1; topicId <= 3; topicId++) {
+        completedActivities[`${moduleId}-${topicId}`] = ['interactive', 'assignment'];
+      }
+    }
+
+    localStorage.setItem(`userProgress_${this.demoUsername}`, JSON.stringify({
+      completedModules: [1, 2, 3],
+      completedTopics,
+      completedActivities
+    }));
   }
 }
