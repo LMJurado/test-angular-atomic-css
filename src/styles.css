@@ -1,0 +1,14 @@
+/* Punto único de configuración visual y entrada de Atomic Design. */
+@import './assets/css/design-tokens.css';
+@import './app/css/base/reset.css';
+@import './app/css/base/base.css';
+@import './app/css/atoms/button/button.css';
+@import './app/css/atoms/badge/badge.css';
+@import './app/css/molecules/forms.css';
+@import './app/css/molecules/breadcrumbs.css';
+@import './app/css/organisms/header.css';
+@import './app/css/organisms/footer.css';
+@import './app/css/organisms/cards.css';
+@import './app/css/organisms/forms.css';
+@import './app/css/templates/application-pages.css';
+@import './app/css/utilities/layout.css';

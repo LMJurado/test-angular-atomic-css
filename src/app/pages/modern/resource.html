@@ -1,0 +1,68 @@
+<section class="modern-page">
+  <nav aria-label="Migas de pan">
+    <ol class="breadcrumb modern-breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/nuevo/inicio">Inicio</a></li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleId]">Módulo {{ moduleId }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Recursos</li>
+    </ol>
+  </nav>
+
+  <header class="modern-page-heading">
+    <p class="modern-eyebrow">MATERIAL COMPLEMENTARIO</p>
+    <h1>Recursos del módulo</h1>
+    <p class="text-muted">Revisa la presentación y el video antes de continuar con las actividades.</p>
+  </header>
+
+  @if (moduleId === 1) {
+    <section class="modern-resource-section">
+      <h2>Desarrollo Web</h2>
+      <div class="modern-embed">
+        <iframe class="modern-embed__frame" loading="lazy"
+                src="https://www.canva.com/design/DAG4_hPpmyQ/lwjn2FIkz7T9pAelDeR73A/view?embed"
+                title="Presentación de Desarrollo Web" allowfullscreen></iframe>
+      </div>
+      <a href="https://www.canva.com/design/DAG4_hPpmyQ/lwjn2FIkz7T9pAelDeR73A/view?utm_content=DAG4_hPpmyQ&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link"
+         target="_blank" rel="noopener noreferrer">Abrir presentación de Desarrollo Web</a>
+      <div class="modern-video">
+        <iframe loading="lazy" src="https://www.youtube.com/embed/VPQICmxcXqE"
+                title="Video de Desarrollo Web" allowfullscreen></iframe>
+      </div>
+    </section>
+  } @else if (moduleId === 2) {
+    <section class="modern-resource-section">
+      <h2>Desarrollo Móvil</h2>
+      <div class="modern-embed">
+        <iframe class="modern-embed__frame" loading="lazy"
+                src="https://www.canva.com/design/DAG4_rXF47Y/AtCGn0AA4VG1RLQ_uDojsA/view?embed"
+                title="Presentación de Desarrollo Móvil" allowfullscreen></iframe>
+      </div>
+      <a href="https://www.canva.com/design/DAG4_rXF47Y/AtCGn0AA4VG1RLQ_uDojsA/view?utm_content=DAG4_rXF47Y&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link"
+         target="_blank" rel="noopener noreferrer">Abrir presentación de Desarrollo Móvil</a>
+      <div class="modern-video">
+        <iframe loading="lazy" src="https://www.youtube.com/embed/Wc5OBu6PaKQ"
+                title="Video de Desarrollo Móvil" allowfullscreen></iframe>
+      </div>
+    </section>
+  } @else if (moduleId === 3) {
+    <section class="modern-resource-section">
+      <h2>DevOps y Automatización</h2>
+      <div class="modern-embed">
+        <iframe class="modern-embed__frame" loading="lazy"
+                src="https://www.canva.com/design/DAG4_hY4SuE/Uk0P6XpvkNvvk46k3wW5Vw/view?embed"
+                title="Presentación de DevOps" allowfullscreen></iframe>
+      </div>
+      <a href="https://www.canva.com/design/DAG4_hY4SuE/Uk0P6XpvkNvvk46k3wW5Vw/view?utm_content=DAG4_hY4SuE&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link"
+         target="_blank" rel="noopener noreferrer">Abrir presentación de DevOps</a>
+      <div class="modern-video">
+        <iframe loading="lazy" src="https://www.youtube.com/embed/wfLS5kEcDrM"
+                title="Video de DevOps" allowfullscreen></iframe>
+      </div>
+    </section>
+  }
+
+  <a class="btn btn--ghost modern-back-link" [routerLink]="['/nuevo/modulo', moduleId]">
+    ← Volver al módulo
+  </a>
+</section>

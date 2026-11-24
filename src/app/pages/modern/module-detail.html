@@ -1,0 +1,58 @@
+<section class="modern-page">
+  <nav aria-label="Migas de pan">
+    <ol class="breadcrumb modern-breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/nuevo/inicio">Inicio</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ moduleConfig?.breadcrumb }}</li>
+    </ol>
+  </nav>
+
+  <header class="modern-section-heading">
+    <div>
+      <p class="modern-eyebrow">RUTA DE APRENDIZAJE</p>
+      <h1>Módulo {{ moduleConfig?.id }}: {{ moduleConfig?.name }}</h1>
+    </div>
+    @if (moduleConfig?.isCompleted) {
+      <app-badge variant="mint">Módulo completado</app-badge>
+    }
+  </header>
+
+  <div class="modern-card-grid modern-card-grid--four">
+    <article class="card modern-card">
+      <img src="assets/img/recursosmodulo.png" alt="" class="modern-card__image">
+      <div class="card-body modern-card__body">
+        <span class="modern-eyebrow">MATERIAL DE APOYO</span>
+        <h2 class="card-title">Recursos del módulo</h2>
+        <p class="card-text">Consulta la presentación y el video introductorio.</p>
+        <a class="btn btn--outline modern-card__link"
+           [routerLink]="['/nuevo/modulo', moduleConfig.id, 'recursos']">
+          Ver recursos
+        </a>
+      </div>
+    </article>
+
+    @for (topic of moduleConfig?.topics; track topic.id) {
+      <article class="card modern-card" [class.locked-card]="topic.isLocked"
+               [class.completed-card]="topic.isCompleted">
+        <img [src]="topic.image" [alt]="topic.title" class="modern-card__image">
+        <div class="card-body modern-card__body">
+          <div class="modern-card__meta">
+            <span class="modern-eyebrow">TEMA {{ topic.id }}</span>
+            @if (topic.isCompleted) {
+              <app-badge variant="mint" size="sm">Completado</app-badge>
+            } @else if (topic.isLocked) {
+              <app-badge variant="neutral" size="sm">Bloqueado</app-badge>
+            }
+          </div>
+          <h2 class="card-title">{{ topic.title }}</h2>
+          <p class="card-text">{{ topic.description }}</p>
+          <app-button variant="outline" [fullWidth]="true" [disabled]="topic.isLocked"
+                      (click)="onTopicClick(topic)">
+            {{ topic.isLocked ? 'Completa el tema anterior' : 'Abrir tema' }}
+          </app-button>
+        </div>
+      </article>
+    }
+  </div>
+
+  <a class="btn btn--ghost modern-back-link" routerLink="/nuevo/inicio">← Volver a mis módulos</a>
+</section>

@@ -1,0 +1,2 @@
+.breadcrumb { background: var(--color-surface); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-sm) var(--space-md); }
+.breadcrumb-item, .breadcrumb-item.active, .breadcrumb-item + .breadcrumb-item::before { color: var(--color-text-muted); }

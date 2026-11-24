@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Actividad interactiva - Angular Básico</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/activity-theme.css" />
+  <script src="../js/theme-sync.js"></script>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="card">
+    <h1>Actividad: Angular Básico</h1>
+    <p class="lead">
+      Responde las siguientes preguntas para reforzar tu comprensión sobre componentes, servicios y data-binding en Angular.
+    </p>
+  </div>
+
+  <!-- PREGUNTA 1 -->
+  <div class="card question">
+    <h3>1. ¿Qué es un componente en Angular?</h3>
+
+    <button class="option" data-correct="true">Una unidad de UI compuesta por TypeScript, HTML y CSS</button>
+    <button class="option" data-correct="false">Una base de datos integrada en Angular</button>
+    <button class="option" data-correct="false">Un archivo que controla únicamente estilos</button>
+
+    <div class="feedback"></div>
+  </div>
+
+  <!-- PREGUNTA 2 -->
+  <div class="card question">
+    <h3>2. ¿Cuál de las siguientes opciones corresponde a <em>data-binding</em>?</h3>
+
+    <button class="option" data-correct="true">Vincular datos entre el TS y la vista HTML</button>
+    <button class="option" data-correct="false">Un protocolo para enviar datos al servidor</button>
+    <button class="option" data-correct="false">Una herramienta de estilos CSS</button>
+
+    <div class="feedback"></div>
+  </div>
+
+  <!-- PREGUNTA 3 -->
+  <div class="card question">
+    <h3>3. ¿Para qué sirve un servicio en Angular?</h3>
+
+    <button class="option" data-correct="true">Compartir lógica o datos entre componentes</button>
+    <button class="option" data-correct="false">Modificar los estilos globales de la app</button>
+    <button class="option" data-correct="false">Definir la estructura del módulo raíz</button>
+
+    <div class="feedback"></div>
+  </div>
+
+  <!-- COMPLETAR 1 -->
+  <div class="card question">
+    <h3>4. Completa: El decorador usado para definir un componente en Angular es <strong>@___________</strong></h3>
+
+    <input class="fill" id="fill1" placeholder="Escribe la respuesta aquí">
+
+    <div class="feedback" id="fill1fb"></div>
+  </div>
+
+  <!-- COMPLETAR 2 -->
+  <div class="card question">
+    <h3>5. Completa: El archivo donde escribimos la lógica de un componente es el archivo con extensión <strong>.___________</strong></h3>
+
+    <input class="fill" id="fill2" placeholder="Ej: ts">
+
+    <div class="feedback" id="fill2fb"></div>
+  </div>
+
+  <div class="button-group">
+    <button class="check-btn" id="checkAll">Comprobar actividad</button>
+    <button class="check-btn" id="restart">🔄 Reiniciar Actividad</button>
+  </div>
+  <div id="final" class="feedback activity-final-feedback"></div>
+
+</div>
+
+<script>
+  /* ===== SONIDOS CON WEB AUDIO API (SIN ARCHIVOS EXTERNOS) ===== */
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        audioCtx = new AudioContext();
+      }
+    }
+    return audioCtx;
+  }
+
+  function playTone(freq = 880, type = 'sine', duration = 0.15, gainValue = 0.15) {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = gainValue;
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  function soundCorrect() {
+    playTone(880, 'sine', 0.15, 0.18);
+  }
+
+  function soundIncorrect() {
+    playTone(220, 'square', 0.18, 0.18);
+  }
+
+  function soundFinal() {
+    playTone(660, 'triangle', 0.18, 0.2);
+  }
+
+  /* ===== PREGUNTAS OPCIÓN MÚLTIPLE ===== */
+  document.querySelectorAll('.question').forEach(q => {
+    q.querySelectorAll('.option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const correct = btn.getAttribute('data-correct') === 'true';
+        const fb = q.querySelector('.feedback');
+
+        // Reset estilos de todos los botones de esa pregunta
+        q.querySelectorAll('.option').forEach(b => b.classList.remove('correct', 'incorrect'));
+        fb.classList.remove('feedback--correct', 'feedback--incorrect');
+
+        if (correct) {
+          btn.classList.add('correct');
+          fb.classList.add('feedback--correct');
+          fb.textContent = "Correcto ✔️";
+          soundCorrect();
+        } else {
+          btn.classList.add('incorrect');
+          fb.classList.add('feedback--incorrect');
+          fb.textContent = "Respuesta incorrecta ❌";
+          soundIncorrect();
+        }
+      });
+    });
+  });
+
+  /* ===== VALIDACIÓN COMPLETAR ===== */
+  function validateFill(id, answer) {
+    const input = document.getElementById(id);
+    const fb = document.getElementById(id + "fb");
+    const value = (input.value || "").trim().toLowerCase();
+    fb.classList.remove('feedback--correct', 'feedback--incorrect');
+
+    if (value === answer.toLowerCase()) {
+      fb.textContent = "Correcto ✔️";
+      fb.classList.add('feedback--correct');
+      soundCorrect();
+      return true;
+    } else {
+      fb.textContent = "Incorrecto ❌";
+      fb.classList.add('feedback--incorrect');
+      soundIncorrect();
+      return false;
+    }
+  }
+
+  /* ===== BOTÓN FINAL ===== */
+  document.getElementById('checkAll').addEventListener('click', () => {
+    let score = 0;
+
+    if (validateFill("fill1","component")) score++;
+    if (validateFill("fill2","ts")) score++;
+
+    const final = document.getElementById('final');
+    final.textContent =
+      "Actividad completada. Respuestas correctas: " + score + " / 2 en la sección de completar.";
+    final.classList.toggle('feedback--correct', score === 2);
+    final.classList.toggle('feedback--incorrect', score !== 2);
+
+    soundFinal();
+  });
+
+  document.getElementById('restart').addEventListener('click', () => {
+    location.reload();
+  });
+</script>
+
+</body>
+</html>

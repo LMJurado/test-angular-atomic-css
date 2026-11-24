@@ -1,0 +1,7 @@
+<div
+  [class]="classes()"
+  [attr.role]="variant() === 'h1' || variant() === 'h2' || variant() === 'h3' ? 'heading' : null"
+  [attr.aria-level]="variant() === 'h1' ? 1 : variant() === 'h2' ? 2 : variant() === 'h3' ? 3 : null"
+>
+  <ng-content />
+</div>

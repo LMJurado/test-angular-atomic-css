@@ -1,0 +1,45 @@
+<section class="login-wrapper modern-auth-page">
+  <div class="login-box modern-auth-card">
+    <div class="modern-auth-brand">
+      <img src="assets/img/ICONO APP.png" alt="Academia Web & DevOps" class="logo-img">
+      <span class="badge badge--accent badge--sm">ACADEMIA DIGITAL</span>
+    </div>
+
+    <div class="modern-auth-content">
+      <div class="modern-page-heading">
+        <p class="modern-eyebrow">Qué bueno verte</p>
+        <h1>Iniciar sesión</h1>
+        <p class="text-muted">Ingresa para continuar tu ruta de aprendizaje.</p>
+      </div>
+
+      <form class="form-area modern-form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="modern-field">
+          <label class="form-label" for="modern-username">Usuario o correo</label>
+          <input id="modern-username" class="form-control" type="text"
+                 autocomplete="username" formControlName="usernameOrEmail"
+                 placeholder="Tu usuario o correo">
+        </div>
+
+        <div class="modern-field">
+          <label class="form-label" for="modern-password">Contraseña</label>
+          <input id="modern-password" class="form-control" type="password"
+                 autocomplete="current-password" formControlName="password"
+                 placeholder="Tu contraseña">
+        </div>
+
+        @if (error) {
+          <p class="text-danger" role="alert">{{ error }}</p>
+        }
+
+        <app-button type="submit" [fullWidth]="true" [disabled]="loading" [loading]="loading">
+          Entrar
+        </app-button>
+
+        <div class="modern-auth-links">
+          <a routerLink="/nuevo/olvido-contrasena">¿Olvidaste tu contraseña?</a>
+          <span>¿Aún no tienes cuenta? <a routerLink="/nuevo/registro">Regístrate</a></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

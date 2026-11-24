@@ -1,0 +1,24 @@
+<div class="input-wrapper" [class.input-wrapper--full]="fullWidth()">
+  @if (label()) {
+    <label class="input-label" [attr.for]="id()">
+      {{ label() }}
+      @if (required()) {
+        <span class="input-required">*</span>
+      }
+      @if (helpText()) {
+        <span class="input-help">
+          <app-icon name="circle-question" size="sm" />
+          <span class="input-tooltip">{{ helpText() }}</span>
+        </span>
+      }
+    </label>
+  }
+
+  <input [class]="classes()" [type]="type()" [id]="id() || null" [name]="name() || null" [placeholder]="placeholder()" [value]="value()" [autocomplete]="autocomplete()" [disabled]="disabled()" [readonly]="readonly()" [required]="required()" [attr.aria-invalid]="error() ? 'true' : null" [attr.aria-describedby]="error() ? id() + '-error' : helperText() ? id() + '-help' : null" (input)="onInput($event)" />
+
+  @if (error()) {
+    <span class="input-error" [id]="id() + '-error'">{{ error() }}</span>
+  } @else if (helperText()) {
+    <span class="input-helper" [id]="id() + '-help'">{{ helperText() }}</span>
+  }
+</div>

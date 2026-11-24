@@ -1,0 +1,71 @@
+<section class="modern-page">
+  <div class="modern-hero">
+    <div class="modern-hero__copy">
+      <p class="modern-eyebrow">TU AULA VIRTUAL</p>
+      <h1>Hola, {{ auth.currentUserName() }}</h1>
+      <p>Aprende Web, Móvil y DevOps con rutas prácticas, actividades y evaluaciones a tu ritmo.</p>
+      <span class="modern-hero__note">Un paso a la vez. Tu progreso queda guardado.</span>
+    </div>
+    <img src="assets/img/s1.png" alt="Aprendizaje de tecnología" class="modern-hero__image">
+  </div>
+
+  <header class="modern-section-heading">
+    <div>
+      <p class="modern-eyebrow">RUTAS DE APRENDIZAJE</p>
+      <h2>Elige tu camino en tecnología</h2>
+    </div>
+    <app-badge variant="neutral">{{ modules.length }} módulos</app-badge>
+  </header>
+
+  <div class="modern-card-grid">
+    @for (module of modules; track module.id) {
+      <article class="card modern-card" [class.locked-card]="module.isLocked">
+        <img [src]="module.image" [alt]="module.title" class="modern-card__image">
+        <div class="card-body modern-card__body">
+          <div class="modern-card__meta">
+            <span class="modern-eyebrow">MÓDULO {{ module.id }}</span>
+            @if (module.isLocked) {
+              <app-badge variant="neutral" size="sm">Bloqueado</app-badge>
+            } @else {
+              <app-badge variant="mint" size="sm">Disponible</app-badge>
+            }
+          </div>
+          <h3 class="card-title">{{ module.title }}</h3>
+          <p class="card-text">
+            @switch (module.id) {
+              @case (1) { Construye sitios y aplicaciones con HTML, CSS, JavaScript y Angular. }
+              @case (2) { Diseña aplicaciones móviles para Android e iOS con tecnologías actuales. }
+              @default { Aprende automatización, integración continua y despliegues. }
+            }
+          </p>
+          <app-button variant="outline" [fullWidth]="true" [disabled]="module.isLocked"
+                      (click)="onModuleClick(module)">
+            {{ module.isLocked ? 'Completa el módulo anterior' : 'Explorar módulo' }}
+          </app-button>
+        </div>
+      </article>
+    }
+  </div>
+
+  <section class="modern-diploma">
+    <div>
+      <p class="modern-eyebrow">TU META</p>
+      <h2>Certificado de finalización</h2>
+      <p class="text-muted">Completa las tres rutas para habilitar la descarga de tu diploma.</p>
+    </div>
+    <app-button variant="primary" [disabled]="!allModulesCompleted" (click)="downloadDiploma()">
+      {{ allModulesCompleted ? 'Descargar diploma' : 'Completa todos los módulos' }}
+    </app-button>
+  </section>
+
+  @if (showLoadingOverlay) {
+    <div class="loading-overlay" role="status" aria-live="polite">
+      <div class="loading-content">
+        <img [src]="selectedModule?.image" [alt]="selectedModule?.title" class="modern-loading-image">
+        <h2 class="loading-title">{{ selectedModule?.title }}</h2>
+        <div class="loading-progress"><div class="progress-bar"></div></div>
+        <p>Preparando tu ruta...</p>
+      </div>
+    </div>
+  }
+</section>

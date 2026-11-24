@@ -1,0 +1,6 @@
+<div class="category-filter">
+  <button class="category-filter__item" [class.category-filter__item--active]="selectedCategory() === null" (click)="selectCategory(null)">Todos</button>
+  @for (category of categories(); track category.id) {
+    <button class="category-filter__item" [class.category-filter__item--active]="selectedCategory() === category.id" (click)="selectCategory(category.id)">{{ category.name }}</button>
+  }
+</div>

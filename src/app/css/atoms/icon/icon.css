@@ -1,0 +1,17 @@
+.icon {
+    display: inline-block;
+    line-height: 1;
+    color: inherit;
+}
+
+.icon-sm {
+    font-size: 0.875rem;
+}
+
+.icon-md {
+    font-size: 1rem;
+}
+
+.icon-lg {
+    font-size: 1.5rem;
+}

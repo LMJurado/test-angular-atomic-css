@@ -1,0 +1,6 @@
+:host { display: block; width: 100%; }
+.tabs { display: flex; align-items: center; gap: var(--space-xs); width: 100%; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs__item { flex-shrink: 0; padding: var(--space-sm) var(--space-md); border: none; border-bottom: 2px solid var(--color-transparent); background: var(--color-transparent); color: var(--text-muted); font-family: var(--font-body); font-weight: 600; cursor: pointer; transition: all .2s ease; }
+.tabs__item:hover:not(:disabled) { color: var(--accent); }
+.tabs__item--active { color: var(--accent-deep); border-bottom-color: var(--accent); }
+.tabs__item:disabled { opacity: .5; cursor: not-allowed; }

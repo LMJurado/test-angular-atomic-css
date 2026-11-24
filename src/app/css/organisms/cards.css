@@ -1,0 +1,11 @@
+.card, .evaluation-card, .question-card, .assignment-form, .activity-container, .result-block { background: var(--color-surface); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); color: var(--color-text); }
+.card { overflow: hidden; }
+.card-hover { cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.card-hover:hover:not(.locked-card) { border-color: var(--color-accent); box-shadow: var(--shadow-md); }
+.card-title { color: var(--color-text); }
+.card-text { color: var(--color-text-muted); }
+.card-img-top { border-bottom: var(--border-width) solid var(--color-border); }
+.locked-card { opacity: 0.65; }
+.locked-overlay { align-items: center; background: var(--color-overlay); color: var(--color-text); display: flex; inset: 0; justify-content: center; position: absolute; }
+.completed-card { border-color: var(--color-success); }
+.completed-badge { color: var(--color-success); font-weight: var(--font-weight-bold); }

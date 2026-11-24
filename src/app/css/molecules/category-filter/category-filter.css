@@ -1,0 +1,6 @@
+:host { display: block; width: 100%; }
+.category-filter { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.category-filter__item { padding: var(--space-sm) var(--space-md); border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); cursor: pointer; transition: all .2s ease; font-family: var(--font-body); }
+.category-filter__item:hover { border-color: var(--accent); color: var(--accent); }
+.category-filter__item--active { background: var(--accent); border-color: var(--accent); color: var(--color-secondary); }
+.category-filter__item--active:hover { background: var(--accent-deep); color: var(--color-secondary); }

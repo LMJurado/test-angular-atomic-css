@@ -1,0 +1,31 @@
+.typography {
+  margin: 0;
+  font-family: inherit;
+}
+
+.typography-h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.15; }
+.typography-h2 { font-size: clamp(1.75rem, 3.5vw, 2.5rem); line-height: 1.25; }
+.typography-h3 { font-size: clamp(1.35rem, 2.5vw, 1.75rem); line-height: 1.35; }
+.typography-body { font-size: clamp(1rem, 1.2vw, 1.125rem); line-height: 1.6; }
+.typography-small { font-size: clamp(0.875rem, 1vw, 1rem); line-height: 1.5; }
+.typography-caption { font-size: clamp(0.75rem, 0.9vw, 0.875rem); line-height: 1.4; }
+
+.typography-h1,
+.typography-h2,
+.typography-h3 { font-family: var(--font-heading); }
+
+.weight-normal { font-weight: 400; }
+.weight-medium { font-weight: 500; }
+.weight-semibold { font-weight: 600; }
+.weight-bold { font-weight: 700; }
+
+.color-primary { color: var(--color-text); }
+.color-accent { color: var(--color-accent-strong); }
+.color-secondary { color: var(--color-secondary); }
+.color-mint { color: var(--color-accent-strong); }
+.color-text { color: var(--text); }
+.color-muted { color: var(--text-muted); }
+
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }

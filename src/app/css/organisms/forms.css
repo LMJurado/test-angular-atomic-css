@@ -1,0 +1,9 @@
+.login-wrapper, .register-container, .evaluation-wrapper, .activity-wrapper { display: flex; justify-content: center; min-height: 100%; padding: var(--space-xl) var(--space-md); }
+.login-box, .register-box { background: var(--color-surface); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); max-width: 60rem; padding: var(--space-xl); width: 100%; }
+.contenido-login { align-items: center; gap: var(--space-xl); }
+.form-area { max-width: 24rem; width: 100%; }
+.logo-area { align-items: center; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-lg); display: flex; height: 15rem; justify-content: center; width: 15rem; }
+.logo-img { height: 10rem; object-fit: contain; width: 10rem; }
+.titulo-login, .titulo-register { color: var(--color-text); font-size: var(--font-size-2xl); }
+.enlaces-login a, .regresar-link { color: var(--color-accent-strong); }
+@media (max-width: 48rem) { .contenido-login { flex-direction: column; } .login-box, .register-box { padding: var(--space-lg); } }

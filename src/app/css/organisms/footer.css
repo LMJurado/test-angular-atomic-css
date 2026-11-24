@@ -1,0 +1,3 @@
+.app-footer { background: var(--color-surface-raised); border-top: var(--border-width) solid var(--color-border); color: var(--color-text-muted); margin-top: auto; padding: var(--space-md); text-align: center; }
+.app-footer a { color: var(--color-accent-strong); }
+.neon-box { background: var(--color-surface); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-lg); color: var(--color-text); }

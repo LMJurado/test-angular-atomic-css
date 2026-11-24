@@ -1,0 +1,7 @@
+.form-label, .input-label { color: var(--color-text); font-weight: var(--font-weight-semibold); }
+.form-control, .form-select, .linea, .neon-textarea, .text-input, .match-select { background: var(--color-surface); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text); }
+.form-control::placeholder, .neon-textarea::placeholder, .text-input::placeholder { color: var(--color-text-muted); }
+.form-control:focus, .form-select:focus, .linea:focus, .neon-textarea:focus, .text-input:focus, .match-select:focus { background: var(--color-surface); border-color: var(--color-accent); box-shadow: 0 0 0 0.2rem var(--accent-soft); color: var(--color-text); }
+.form-hint, .form-description, .input-helper { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.text-danger { color: var(--color-danger) !important; }
+.text-success { color: var(--color-success) !important; }

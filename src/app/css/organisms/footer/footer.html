@@ -1,0 +1,27 @@
+<footer class="footer">
+  <div class="footer__container">
+    <div class="footer__identity">
+      <a class="footer__brand" routerLink="/">Chiki Helados</a>
+      <app-typography variant="small" color="muted">Un catálogo lleno de momentos para disfrutar.</app-typography>
+    </div>
+
+    <nav class="footer__links" aria-label="Navegación del pie de página">
+      <a routerLink="/">Inicio</a>
+      <a routerLink="/catalog">Catálogo</a>
+    </nav>
+
+    <div class="footer__contact">
+      <a
+        class="footer__whatsapp"
+        href="https://wa.me/573155356815"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Escríbenos por WhatsApp al +57 315 535 6815"
+      >
+        <app-icon name="fa-whatsapp" type="brands" size="md" />
+        <span>+57 315 535 6815</span>
+      </a>
+    </div>
+  </div>
+  <div class="footer__legal">© {{ currentYear }} Chiki Helados. Todos los derechos reservados.</div>
+</footer>

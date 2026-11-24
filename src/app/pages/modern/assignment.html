@@ -1,0 +1,86 @@
+<section class="modern-page">
+  <nav aria-label="Migas de pan">
+    <ol class="breadcrumb modern-breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/nuevo/inicio">Inicio</a></li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleId]">{{ moduleName }}</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleId, 'tema', topicId]">{{ topicName }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Actividad de entrega</li>
+    </ol>
+  </nav>
+
+  @if (assignment; as currentAssignment) {
+    <header class="modern-page-heading">
+      <p class="modern-eyebrow">ENTREGA · {{ moduleName }}</p>
+      <h1>{{ currentAssignment.title }}</h1>
+      <p class="text-muted">{{ topicName }}</p>
+    </header>
+
+    <article class="card modern-content-card">
+      <div class="card-body">
+        <section class="modern-assignment-description" [innerHTML]="currentAssignment.descriptionHtml"></section>
+
+        <div class="delivery-times modern-delivery-times">
+          <div>
+            <span class="time-label">Apertura</span>
+            <span class="time-value">{{ currentAssignment.openDate }}</span>
+          </div>
+          <div>
+            <span class="time-label">Cierre</span>
+            <span class="time-value">{{ currentAssignment.closeDate }}</span>
+          </div>
+        </div>
+
+        <form class="modern-form">
+          <div class="modern-field">
+            <label class="form-label" for="modern-assignment-answer">Tu respuesta</label>
+            <textarea id="modern-assignment-answer" class="form-control" rows="8"
+                      placeholder="Escribe tu respuesta aquí..."></textarea>
+            <span class="form-hint">Puedes complementar tu respuesta con archivos adjuntos.</span>
+          </div>
+
+          @if (currentAssignment.deliveryType === 'file' || currentAssignment.deliveryType === 'mixed') {
+            <div class="modern-field">
+              <label class="form-label" for="modern-assignment-files">Archivos adjuntos</label>
+              <input id="modern-assignment-files" class="form-control" type="file" multiple
+                     (change)="onFileSelected($event)">
+              @if (uploadedFiles.length > 0) {
+                <ul class="modern-file-list">
+                  @for (file of uploadedFiles; track file.name) {
+                    <li>{{ file.name }} <span class="text-muted">({{ (file.size / 1024).toFixed(2) }} KB)</span></li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+
+          <div class="modern-actions">
+            <app-button variant="primary" (click)="completeAssignment()">Entregar actividad</app-button>
+            <a class="btn btn--ghost" [routerLink]="['/nuevo/modulo', moduleId, 'tema', topicId]">
+              Volver al tema
+            </a>
+          </div>
+        </form>
+
+        @if (showCompleteMessage) {
+          <p class="alert alert-success alert-completion" role="status">
+            Actividad completada. Volviendo al tema...
+          </p>
+        }
+      </div>
+    </article>
+  } @else {
+    <section class="card modern-content-card">
+      <div class="card-body">
+        <app-badge variant="neutral">No configurada</app-badge>
+        <h1>Actividad no disponible</h1>
+        <p>No se encontró una actividad para este tema.</p>
+        <a class="btn btn--outline"
+           [routerLink]="['/nuevo/modulo', moduleId, 'tema', topicId]">Volver al tema</a>
+      </div>
+    </section>
+  }
+</section>

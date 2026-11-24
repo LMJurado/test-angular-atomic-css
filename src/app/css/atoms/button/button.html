@@ -1,0 +1,13 @@
+<button class="btn" [class]="buttonClasses()" [type]="type()" [disabled]="isDisabled()">
+  @if (loading()) {
+    <span class="btn__spinner"></span>
+  } @else if (icon() && iconPosition() === 'start') {
+    <i [class]="'fa-' + iconType() + ' ' + icon()" aria-hidden="true"></i>
+  }
+
+  <span class="btn__content"><ng-content /></span>
+
+  @if (!loading() && icon() && iconPosition() === 'end') {
+    <i [class]="'fa-' + iconType() + ' ' + icon()" aria-hidden="true"></i>
+  }
+</button>

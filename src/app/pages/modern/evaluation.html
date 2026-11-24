@@ -1,0 +1,125 @@
+@if (evaluation; as currentEvaluation) {
+  <section class="modern-page modern-evaluation">
+    <header class="modern-evaluation__header">
+      <div>
+        <p class="modern-eyebrow">EVALUACIÓN DEL TEMA</p>
+        <h1>{{ currentEvaluation.title }}</h1>
+        <p class="text-muted">{{ currentEvaluation.description }}</p>
+      </div>
+      <aside class="timer-block modern-timer">
+        <span class="timer-label">Tiempo restante</span>
+        <strong class="timer-display">{{ timerDisplay }}</strong>
+        <div class="timer-bar" role="progressbar" [attr.aria-valuenow]="timerPercent"
+             aria-valuemin="0" aria-valuemax="100">
+          <div class="timer-bar-fill" [style.width.%]="timerPercent"></div>
+        </div>
+      </aside>
+    </header>
+
+    @if (!showResult) {
+      <form class="modern-questions" (ngSubmit)="onSubmit()">
+        @for (question of currentEvaluation.questions; track question.id; let index = $index) {
+          <article class="question-card modern-question">
+            <div class="modern-question__title">
+              <app-badge variant="neutral" size="sm">Pregunta {{ index + 1 }}</app-badge>
+              <h2>{{ question.question }}</h2>
+            </div>
+
+            @switch (question.type) {
+              @case ('single') {
+                <div class="modern-option-list">
+                  @for (option of question.options; track option.value) {
+                    <label class="option-row modern-option">
+                      <input type="radio" [name]="question.id" [value]="option.value"
+                             [(ngModel)]="userResponses[question.id]">
+                      <span>{{ option.label }}</span>
+                    </label>
+                  }
+                </div>
+              }
+              @case ('bool') {
+                <div class="modern-option-list">
+                  <label class="option-row modern-option">
+                    <input type="radio" [name]="question.id" value="true"
+                           [(ngModel)]="userResponses[question.id]">
+                    <span>Verdadero</span>
+                  </label>
+                  <label class="option-row modern-option">
+                    <input type="radio" [name]="question.id" value="false"
+                           [(ngModel)]="userResponses[question.id]">
+                    <span>Falso</span>
+                  </label>
+                </div>
+              }
+              @case ('multi') {
+                <div class="modern-option-list">
+                  @for (option of question.options; track option.value) {
+                    <label class="option-row modern-option">
+                      <input type="checkbox" [name]="question.id + '_' + option.value"
+                             [checked]="isMultiSelected(question.id, option.value)"
+                             (change)="onMultiChange(question.id, option.value, $any($event.target).checked)">
+                      <span>{{ option.label }}</span>
+                    </label>
+                  }
+                </div>
+              }
+              @case ('match') {
+                <div class="modern-match-list">
+                  @for (match of question.matches; track match.left; let matchIndex = $index) {
+                    <label class="modern-match-row">
+                      <span>{{ match.left }}</span>
+                      <select class="form-select match-select"
+                              [name]="question.id + '_' + matchIndex"
+                              [ngModel]="userResponses[question.id][matchIndex]"
+                              (ngModelChange)="onMatchChange(question.id, matchIndex, $event)">
+                        <option value="">Selecciona...</option>
+                        @for (option of match.rightOptions; track option) {
+                          <option [value]="option">{{ option }}</option>
+                        }
+                      </select>
+                    </label>
+                  }
+                </div>
+              }
+              @case ('text') {
+                <label class="modern-field">
+                  <span class="form-label">Tu respuesta</span>
+                  <input class="form-control text-input" type="text"
+                         [name]="question.id" [(ngModel)]="userResponses[question.id]">
+                </label>
+              }
+            }
+          </article>
+        }
+
+        <div class="modern-actions modern-actions--end">
+          <app-button type="submit" variant="primary">Enviar evaluación</app-button>
+        </div>
+      </form>
+    } @else {
+      <article class="result-block modern-result">
+        <p class="modern-eyebrow">RESULTADO</p>
+        <h2>{{ score }} / {{ maxScore }} puntos</h2>
+        <div [class.success-message]="passed" [class.failure-message]="!passed">
+          <p>{{ resultMessage }}</p>
+        </div>
+        @if (passed) {
+          <app-badge variant="mint">Tema desbloqueado</app-badge>
+        } @else {
+          <app-badge variant="neutral">Se necesitan 7 puntos para avanzar</app-badge>
+        }
+        <a class="btn btn--outline modern-back-link" [routerLink]="['/nuevo/modulo', moduleId]">
+          Volver al módulo
+        </a>
+      </article>
+    }
+  </section>
+} @else {
+  <section class="card modern-content-card">
+    <div class="card-body">
+      <app-badge variant="neutral">No configurada</app-badge>
+      <h1>Evaluación no disponible</h1>
+      <p>No se encontró una evaluación para este tema.</p>
+    </div>
+  </section>
+}

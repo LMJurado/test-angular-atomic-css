@@ -1,0 +1,24 @@
+<header class="navbar">
+  <div class="navbar__container">
+    <a class="navbar__brand" routerLink="/" (click)="closeMenu()" aria-label="Chiki Helados, ir al inicio">
+      <span class="navbar__brand-mark" aria-hidden="true"><app-icon name="fa-ice-cream" size="sm" /></span>
+      <span>Chiki Helados</span>
+    </a>
+
+    <button
+      class="navbar__toggle"
+      type="button"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="isMenuOpen()"
+      aria-controls="primary-navigation"
+      aria-label="Abrir menú de navegación"
+    >
+      <app-icon [name]="isMenuOpen() ? 'fa-xmark' : 'fa-bars'" size="lg" />
+    </button>
+
+    <nav class="navbar__links" id="primary-navigation" [class.navbar__links--open]="isMenuOpen()" aria-label="Navegación principal">
+      <a routerLink="/" routerLinkActive="navbar__link--active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Inicio</a>
+      <a routerLink="/catalog" routerLinkActive="navbar__link--active" (click)="closeMenu()">Productos</a>
+    </nav>
+  </div>
+</header>

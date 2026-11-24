@@ -1,0 +1,62 @@
+@import './design-tokens.css';
+
+body.exe-export {
+  background: var(--color-background) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-family) !important;
+}
+
+body.exe-export .exe-content,
+body.exe-export #siteNav,
+body.exe-export .page-header,
+body.exe-export .page-content,
+body.exe-export article.box,
+body.exe-export #siteFooter {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+body.exe-export .page-header,
+body.exe-export article.box {
+  border-color: var(--color-border) !important;
+}
+
+body.exe-export .box-head {
+  background: var(--color-secondary) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-primary) !important;
+}
+
+body.exe-export .box-head .box-title,
+body.exe-export .box-head button {
+  color: var(--color-primary) !important;
+}
+
+body.exe-export a {
+  color: var(--color-accent-strong) !important;
+}
+
+body.exe-export button {
+  border-color: var(--color-secondary) !important;
+  background: var(--color-secondary) !important;
+  color: var(--color-primary) !important;
+}
+
+body.exe-export button:focus-visible,
+body.exe-export a:focus-visible {
+  outline: 2px solid var(--color-accent) !important;
+  outline-offset: 2px;
+}
+
+body.exe-export .RLCP-ContainerWords,
+body.exe-export .RLCP-ContainerData,
+body.exe-export .RLCP-EText {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+
+body.exe-export .RLCP-Word {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}

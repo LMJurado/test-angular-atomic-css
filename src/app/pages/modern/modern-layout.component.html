@@ -1,0 +1,48 @@
+<div class="modern-shell">
+  @if (!isSplashPage()) {
+    <header class="navbar app-header modern-header">
+      <div class="container-fluid modern-header__inner">
+        <a class="navbar-brand modern-brand" routerLink="/nuevo/inicio">
+          <img src="assets/img/ICONO APP.png" alt="" class="navbar-logo">
+          <span>Academia Web &amp; DevOps</span>
+        </a>
+
+        <div class="modern-header__actions">
+          <button
+            type="button"
+            class="btn btn--outline btn--sm btn--icon-only"
+            [attr.aria-label]="theme.theme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            [attr.title]="theme.theme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            [attr.aria-pressed]="theme.theme() === 'dark'"
+            (click)="theme.toggleTheme()">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              @if (theme.theme() === 'dark') {
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+              } @else {
+                <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.463.402.807a6.5 6.5 0 0 0 8.268 8.268c.344-.215.829-.003.803.397Z"></path>
+              }
+            </svg>
+          </button>
+
+          @if (auth.isLoggedIn()) {
+            <span class="modern-user">{{ auth.currentUserName() }}</span>
+            <app-button variant="outline" size="sm" (click)="logout()">
+              Cerrar sesión
+            </app-button>
+          }
+        </div>
+      </div>
+    </header>
+  }
+
+  <main class="modern-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  @if (!isSplashPage()) {
+    <footer class="app-footer modern-footer">
+      © Objetos Virtuales de Aprendizaje - Universidad de Nariño
+    </footer>
+  }
+</div>

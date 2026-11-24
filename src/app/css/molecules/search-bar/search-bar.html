@@ -1,0 +1,6 @@
+<div class="search-bar" [class.search-bar--full]="fullWidth()">
+    <app-input type="search" [placeholder]="placeholder()" [value]="value()" [fullWidth]="true"
+        (valueChange)="onValueChange($event)" />
+    <app-button variant="primary" icon="fa-magnifying-glass" [iconOnly]="!buttonLabel()" [fullWidth]="false"
+        (click)="onSearch()">{{ buttonLabel() }}</app-button>
+</div>

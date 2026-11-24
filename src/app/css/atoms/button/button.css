@@ -1,0 +1,111 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border: 1px solid var(--color-transparent);
+  border-radius: 0.75rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+  text-decoration: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 3px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tamaños */
+.btn--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+}
+
+.btn--md {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 1rem;
+}
+
+.btn--lg {
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1.125rem;
+}
+
+/* Variantes */
+.btn--primary {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-strong);
+  color: var(--color-primary);
+}
+
+.btn--secondary {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--color-primary-strong);
+}
+
+.btn--mint {
+  background: var(--color-secondary);
+  color: var(--color-primary);
+}
+
+.btn--mint:hover:not(:disabled) {
+  background: var(--color-primary-strong);
+}
+
+.btn--outline {
+  background: var(--color-transparent);
+  color: var(--color-accent-strong);
+  border-color: var(--accent);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.btn--ghost {
+  background: var(--color-transparent);
+  color: var(--color-accent-strong);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+/* Ancho */
+.btn--full {
+  display: flex;
+  width: 100%;
+}
+
+.btn__content {
+  display: inline-flex;
+  align-items: center;
+}
+.btn--icon-only {
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+}

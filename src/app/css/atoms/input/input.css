@@ -1,0 +1,110 @@
+:host {
+  display: inline-block;
+  width: fit-content;
+}
+
+.input-wrapper {
+  display: grid;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.input-wrapper--full {
+  width: 100%;
+}
+
+.input-label {
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.input-required {
+  color: var(--accent-deep);
+  margin-left: var(--space-xs);
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input:disabled {
+  background: var(--bg);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.input:read-only {
+  cursor: default;
+}
+
+/* Tamaños */
+.input--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.875rem;
+}
+
+.input--md {
+  padding: var(--space-sm) var(--space-md);
+  font-size: 1rem;
+}
+
+.input--lg {
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1.125rem;
+}
+
+/* Variantes */
+.input--default {
+  background: var(--surface);
+}
+
+.input--outline {
+  background: var(--color-transparent);
+}
+
+/* Error */
+.input--error {
+  border-color: var(--accent-deep);
+}
+
+.input--error:focus {
+  border-color: var(--accent-deep);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input-error {
+  color: var(--accent-deep);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+}
+
+/* Ancho */
+.input--full {
+  width: 100%;
+}
+.input-help { position:relative; display:inline-flex; vertical-align:middle; margin-left:var(--space-xs); color:var(--text-muted); cursor:help; }
+.input-tooltip { position:absolute; bottom:calc(100% + var(--space-sm)); left:50%; transform:translateX(-50%); width:max-content; max-width:15rem; padding:var(--space-sm) var(--space-md); background:var(--text); color:var(--white); font-size:.8rem; font-weight:400; line-height:1.5; border-radius:.5rem; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .2s,visibility .2s; z-index:10; }
+.input-help:hover .input-tooltip, .input-help:focus-within .input-tooltip { opacity:1; visibility:visible; }
+.input-helper { color:var(--text-muted); font-family:var(--font-body); font-size:.875rem; line-height:1.5; }

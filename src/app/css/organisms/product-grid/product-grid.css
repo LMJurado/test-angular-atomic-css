@@ -1,0 +1,8 @@
+:host { display: block; }
+
+.productGrid { display: grid; gap: var(--space-md); grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 16rem)); justify-content: center; }
+.productGrid__item { display: flex; flex-direction: column; gap: var(--space-sm); }
+.productGrid__item app-product-card { flex: 1; }
+.productGrid__empty { align-items: center; background: var(--surface); border: 1px dashed var(--border); border-radius: 1rem; color: var(--text-muted); display: flex; flex-direction: column; gap: var(--space-sm); justify-content: center; min-height: 15rem; padding: var(--space-lg); text-align: center; }
+.productGrid__empty i { color: var(--accent); font-size: 2.5rem; }
+.productGrid__empty p { margin: 0; }

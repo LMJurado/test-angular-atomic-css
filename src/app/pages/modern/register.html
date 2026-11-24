@@ -1,0 +1,60 @@
+<section class="login-wrapper modern-auth-page">
+  <div class="login-box modern-auth-card modern-auth-card--wide">
+    <div class="modern-auth-brand">
+      <img src="assets/img/ICONO APP.png" alt="Academia Web & DevOps" class="logo-img">
+      <span class="badge badge--accent badge--sm">NUEVA CUENTA</span>
+    </div>
+
+    <div class="modern-auth-content">
+      <div class="modern-page-heading">
+        <p class="modern-eyebrow">Empieza hoy</p>
+        <h1>Crear cuenta</h1>
+        <p class="text-muted">Completa tus datos para guardar tu progreso.</p>
+      </div>
+
+      <form class="modern-form modern-form--grid" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="modern-field">
+          <label class="form-label" for="modern-first-name">Nombre</label>
+          <input id="modern-first-name" class="form-control" formControlName="nombre" autocomplete="given-name">
+        </div>
+        <div class="modern-field">
+          <label class="form-label" for="modern-last-name">Apellido</label>
+          <input id="modern-last-name" class="form-control" formControlName="apellido" autocomplete="family-name">
+        </div>
+        <div class="modern-field">
+          <label class="form-label" for="modern-register-username">Nombre de usuario</label>
+          <input id="modern-register-username" class="form-control" formControlName="username" autocomplete="username">
+        </div>
+        <div class="modern-field">
+          <label class="form-label" for="modern-email">Correo</label>
+          <input id="modern-email" class="form-control" type="email" formControlName="email" autocomplete="email">
+        </div>
+        <div class="modern-field modern-form__full">
+          <label class="form-label" for="modern-institution">Institución</label>
+          <input id="modern-institution" class="form-control" formControlName="institucion" autocomplete="organization">
+        </div>
+        <div class="modern-field">
+          <label class="form-label" for="modern-register-password">Contraseña</label>
+          <input id="modern-register-password" class="form-control" type="password" formControlName="password" autocomplete="new-password">
+        </div>
+        <div class="modern-field">
+          <label class="form-label" for="modern-password-confirm">Confirmar contraseña</label>
+          <input id="modern-password-confirm" class="form-control" type="password" formControlName="password2" autocomplete="new-password">
+        </div>
+
+        @if (error) {
+          <p class="text-danger modern-form__full" role="alert">{{ error }}</p>
+        }
+
+        <app-button class="modern-form__full" type="submit" [fullWidth]="true"
+                    [disabled]="loading" [loading]="loading">
+          Crear cuenta
+        </app-button>
+
+        <p class="modern-auth-links modern-form__full">
+          ¿Ya tienes cuenta? <a routerLink="/nuevo/login">Inicia sesión</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>

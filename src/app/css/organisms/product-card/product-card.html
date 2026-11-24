@@ -1,0 +1,45 @@
+<article class="pCard">
+  <div class="pCard__image-wrap">
+    @if (product().image) {
+      <img class="pCard__image" [src]="product().image!" [alt]="product().name" />
+    } @else {
+      <div class="pCard__placeholder" aria-hidden="true">
+        <i class="fa-solid fa-ice-cream"></i>
+      </div>
+    }
+  </div>
+
+  <div class="pCard__content">
+    <div class="pCard__meta">
+      @if (product().presentation) {
+      <span class="pCard__presentation">{{ product().presentation }}</span>
+      }
+      @if (!product().available) {
+        <app-badge variant="neutral" size="sm">No disponible</app-badge>
+      }
+    </div>
+    <h3 class="pCard__title">{{ product().name }}</h3>
+    @if (product().description) {
+      <p class="pCard__description">{{ product().description }}</p>
+    }
+    <div class="pCard__price">
+      <app-product-price
+        [presentationPrice]="product().presentationPrice"
+        [unitPrice]="product().unitPrice"
+        [quantity]="product().quantity"
+      />
+    </div>
+    <app-button
+      class="pCard__whatsapp"
+      variant="mint"
+      size="sm"
+      [fullWidth]="true"
+      icon="fa-whatsapp"
+      iconType="brands"
+      [disabled]="!product().available"
+      (click)="orderOnWhatsApp()"
+    >
+      Ordenar por WhatsApp
+    </app-button>
+  </div>
+</article>

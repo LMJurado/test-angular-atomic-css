@@ -1,0 +1,61 @@
+:host {
+  display: block;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+.wallpaper {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(12, minmax(0, 1fr));
+  height: 100%;
+  opacity: .2;
+  width: 100%;
+}
+
+.wallpaper__icon {
+  align-self: center;
+  justify-self: center;
+  line-height: 1;
+}
+
+.wallpaper__icon:nth-child(13n + 1) { color: var(--bg); }
+.wallpaper__icon:nth-child(13n + 2) { color: var(--surface); }
+.wallpaper__icon:nth-child(13n + 3) { color: var(--white); }
+.wallpaper__icon:nth-child(13n + 4) { color: var(--secondary); }
+.wallpaper__icon:nth-child(13n + 5) { color: var(--secondary-soft); }
+.wallpaper__icon:nth-child(13n + 6) { color: var(--accent); }
+.wallpaper__icon:nth-child(13n + 7) { color: var(--accent-deep); }
+.wallpaper__icon:nth-child(13n + 8) { color: var(--accent-soft); }
+.wallpaper__icon:nth-child(13n + 9) { color: var(--rose); }
+.wallpaper__icon:nth-child(13n + 10) { color: var(--mint); }
+.wallpaper__icon:nth-child(13n + 11) { color: var(--text); }
+.wallpaper__icon:nth-child(13n + 12) { color: var(--text-muted); }
+.wallpaper__icon:nth-child(13n) { color: var(--border); }
+
+.wallpaper__icon:nth-child(3n + 1) { font-size: var(--space-lg); }
+.wallpaper__icon:nth-child(3n + 2) { font-size: var(--space-xl); }
+.wallpaper__icon:nth-child(3n) { font-size: var(--space-2xl); }
+
+.wallpaper__icon:nth-child(5n + 1) { transform: translate(-24%, -18%) rotate(-17deg); }
+.wallpaper__icon:nth-child(5n + 2) { transform: translate(31%, 23%) rotate(21deg); }
+.wallpaper__icon:nth-child(5n + 3) { transform: translate(-16%, 29%) rotate(-9deg); }
+.wallpaper__icon:nth-child(5n + 4) { transform: translate(27%, -26%) rotate(15deg); }
+.wallpaper__icon:nth-child(5n) { transform: translate(4%, 9%) rotate(-24deg); }
+
+@media (max-width: 48rem) {
+  .wallpaper {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(18, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 30rem) {
+  .wallpaper {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(36, minmax(0, 1fr));
+  }
+}

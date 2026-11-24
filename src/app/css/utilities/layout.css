@@ -1,0 +1,5 @@
+.surface { background: var(--color-surface); }
+.text-muted { color: var(--color-text-muted) !important; }
+.text-primary-neon { color: var(--color-text); }
+.text-secondary-neon { color: var(--color-secondary); }
+.border-primary { border-color: var(--color-accent) !important; }

@@ -1,0 +1,79 @@
+<section class="modern-page">
+  <nav aria-label="Migas de pan">
+    <ol class="breadcrumb modern-breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/nuevo/inicio">Inicio</a></li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleConfig?.id]">{{ moduleConfig?.breadcrumb }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Tema {{ currentTopic?.id }}</li>
+    </ol>
+  </nav>
+
+  <section class="modern-topic-intro">
+    <img [src]="currentTopic?.image" [alt]="currentTopic?.title" class="modern-topic-intro__image">
+    <div>
+      <p class="modern-eyebrow">{{ moduleConfig?.name }} · TEMA {{ currentTopic?.id }}</p>
+      <h1>{{ currentTopic?.title }}</h1>
+      <p class="text-muted">{{ currentTopic?.description }}</p>
+      @if (topicCompleted) {
+        <app-badge variant="mint">Tema completado</app-badge>
+      }
+    </div>
+  </section>
+
+  <header class="modern-section-heading">
+    <div>
+      <p class="modern-eyebrow">SIGUIENTE PASO</p>
+      <h2>Actividades y evaluación</h2>
+    </div>
+  </header>
+
+  <div class="modern-card-grid modern-card-grid--three">
+    @for (activity of activities; track activity.type) {
+      <article class="card modern-card" [class.locked-card]="activity.isLocked"
+               [class.completed-card]="activity.isCompleted">
+        <img [src]="activity.image" [alt]="activity.title" class="modern-card__image">
+        <div class="card-body modern-card__body">
+          <div class="modern-card__meta">
+            @if (activity.isCompleted) {
+              <app-badge variant="mint" size="sm">Completada</app-badge>
+            } @else if (activity.isLocked) {
+              <app-badge variant="neutral" size="sm">Bloqueada</app-badge>
+            } @else {
+              <app-badge variant="accent" size="sm">Disponible</app-badge>
+            }
+          </div>
+          <h3 class="card-title">{{ activity.title }}</h3>
+          <p class="card-text">{{ activity.description }}</p>
+          <app-button variant="outline" [fullWidth]="true" [disabled]="activity.isLocked"
+                      (click)="onActivityClick(activity)">
+            {{ activity.isLocked ? 'Completa el paso anterior' : 'Continuar' }}
+          </app-button>
+        </div>
+      </article>
+    }
+  </div>
+
+  <a class="btn btn--ghost modern-back-link" [routerLink]="['/nuevo/modulo', moduleConfig.id]">
+    ← Volver al módulo
+  </a>
+
+  @if (showEvaluationModal) {
+    <div class="evaluation-modal-overlay" (click)="closeEvaluationModal()">
+      <section class="evaluation-modal modern-confirmation" role="dialog" aria-modal="true"
+               aria-labelledby="modern-evaluation-title" (click)="$event.stopPropagation()">
+        <span class="badge badge--accent">ANTES DE EMPEZAR</span>
+        <h2 id="modern-evaluation-title">Evaluación del tema</h2>
+        <p>Confirma que revisaste los recursos y completaste las actividades antes de iniciar.</p>
+        <div class="info-box">
+          <strong>Duración: 30 minutos</strong>
+          <p class="info-note">Al iniciar no podrás pausar la evaluación.</p>
+        </div>
+        <div class="modern-actions">
+          <app-button variant="outline" (click)="closeEvaluationModal()">Volver</app-button>
+          <app-button variant="primary" (click)="acceptEvaluation()">Iniciar evaluación</app-button>
+        </div>
+      </section>
+    </div>
+  }
+</section>

@@ -1,0 +1,38 @@
+<section class="modern-page">
+  <nav aria-label="Migas de pan">
+    <ol class="breadcrumb modern-breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/nuevo/inicio">Inicio</a></li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleInfo?.id]">{{ moduleInfo?.breadcrumb }}</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/nuevo/modulo', moduleInfo?.id, 'tema', topicInfo?.id]">
+          Tema {{ topicInfo?.id }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Actividad interactiva</li>
+    </ol>
+  </nav>
+
+  <header class="modern-page-heading">
+    <p class="modern-eyebrow">{{ moduleInfo?.name }} · TEMA {{ topicInfo?.id }}</p>
+    <h1>Actividad interactiva</h1>
+    <p class="text-muted">{{ topicInfo?.title }}</p>
+  </header>
+
+  <div class="embedded-activity modern-activity-frame">
+    <iframe #iframeElement *ngIf="activityUrl" [src]="activityUrl" loading="lazy"
+            title="Actividad interactiva" scrolling="no" (load)="onIframeLoad()"></iframe>
+  </div>
+
+  <div class="modern-actions">
+    <app-button variant="outline" (click)="restartActivity()">Reiniciar actividad</app-button>
+    <app-button variant="primary" (click)="completeActivity()">Marcar como completada</app-button>
+  </div>
+
+  @if (showCompleteMessage) {
+    <p class="alert alert-success alert-completion" role="status">
+      Actividad completada. Volviendo al tema...
+    </p>
+  }
+</section>

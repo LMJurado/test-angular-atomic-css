@@ -1,0 +1,14 @@
+@if (products().length) {
+  <section class="productGrid" aria-label="Productos">
+    @for (product of products(); track product.id) {
+      <div class="productGrid__item" [id]="'product-' + product.id">
+        <app-product-card [product]="product" />
+      </div>
+    }
+  </section>
+} @else {
+  <section class="productGrid__empty" aria-live="polite">
+    <i class="fa-solid fa-ice-cream" aria-hidden="true"></i>
+    <p>No hay productos disponibles por el momento.</p>
+  </section>
+}

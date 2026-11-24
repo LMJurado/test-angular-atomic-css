@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Actividad interactiva - Fundamentos de HTML y CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/activity-theme.css" />
+  <script src="../js/theme-sync.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h1>Actividad: Fundamentos de HTML y CSS</h1>
+
+    <p class="lead">
+      En esta actividad podrás <strong>experimentar en tiempo real</strong> cómo se comporta el código HTML y CSS
+      que has estudiado. Modifica el código en los editores y observa al instante cómo cambia la vista previa.
+      <br><br>
+      Usa los botones para actualizar la vista, limpiar los editores o descargar tu archivo .html final.
+    </p>
+
+    <div class="editor-area">
+
+      <!-- PANEL HTML -->
+      <div class="panel">
+        <h2>HTML</h2>
+        <textarea id="htmlInput">
+<h1>Hola mundo</h1>
+<p>Este es un párrafo de ejemplo dentro de la actividad interactiva.</p>
+<p>Puedes modificar cualquier cosa aquí.</p>
+        </textarea>
+      </div>
+
+      <!-- PANEL CSS -->
+      <div class="panel">
+        <h2>CSS</h2>
+        <textarea id="cssInput">
+body {
+  font-family: Arial;
+  padding: 20px;
+}
+
+h1 {
+  color: steelblue;
+}
+
+p {
+  font-size: 1.1rem;
+}
+        </textarea>
+      </div>
+
+    </div>
+
+    <!-- BOTONES -->
+    <button class="btn" onclick="updatePreview()">Actualizar vista</button>
+    <button class="btn btn-secondary" onclick="clearEditors()">Limpiar código</button>
+    <button class="btn btn-download" onclick="downloadFile()">Descargar HTML</button>
+
+    <div class="panel activity-preview-panel">
+      <h2>Vista previa</h2>
+      <iframe id="previewFrame" class="activity-preview"></iframe>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ========= ACTUALIZAR VISTA ========= */
+function updatePreview() {
+  const html = document.getElementById("htmlInput").value;
+  const css  = document.getElementById("cssInput").value;
+
+  const iframe = document.getElementById("previewFrame");
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+  const full = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>${css}</style>
+</head>
+<body>
+${html}
+</body>
+</html>
+  `;
+
+  doc.open();
+  doc.write(full);
+  doc.close();
+}
+
+/* ========= LIMPIAR EDITORES ========= */
+function clearEditors() {
+  document.getElementById("htmlInput").value = "";
+  document.getElementById("cssInput").value = "";
+}
+
+/* ========= DESCARGAR ARCHIVO ========= */
+function downloadFile() {
+  const html = document.getElementById("htmlInput").value;
+  const css = document.getElementById("cssInput").value;
+
+  const content = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${css}
+</style>
+</head>
+<body>
+${html}
+</body>
+</html>
+`;
+
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "actividad-html-css.html";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>

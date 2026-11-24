@@ -1,0 +1,10 @@
+:host { display:block; width:fit-content; max-width:100%; }
+:host(.search-bar--full) { width:100%; }
+
+.search-bar { display:flex; align-items:center; gap:var(--space-xs); width:100%; }
+.search-bar app-input { flex:1; min-width:0; }
+.search-bar app-button { flex-shrink:0; }
+
+@media (max-width:480px) {
+  .search-bar { gap:var(--space-xs); }
+}
