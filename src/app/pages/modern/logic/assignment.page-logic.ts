@@ -63,8 +63,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, escribe una breve explicación (5–8 líneas) sobre la estructura de tu página y qué decidiste estilizar con CSS.</li>
       </ul>
     `,
-    openDate: '03 de diciembre de 2025, 00:00',
-    closeDate: '05 de diciembre de 2025, 23:59',
+    openDate: '03 de diciembre de 2026, 00:00',
+    closeDate: '05 de diciembre de 2026, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -86,8 +86,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, describe brevemente (5–10 líneas) qué hace tu página y qué partes del DOM modificas.</li>
       </ul>
     `,
-    openDate: '06 de diciembre de 2025, 00:00',
-    closeDate: '08 de diciembre de 2025, 23:59',
+    openDate: '06 de diciembre de 2026, 00:00',
+    closeDate: '08 de diciembre de 2026, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -109,8 +109,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, explica cómo manejas el estado de la lista (qué propiedad lo guarda y cómo se actualiza).</li>
       </ul>
     `,
-    openDate: '09 de diciembre de 2025, 00:00',
-    closeDate: '15 de diciembre de 2025, 23:59',
+    openDate: '09 de diciembre de 2026, 00:00',
+    closeDate: '15 de diciembre de 2026, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -135,8 +135,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>Opcionalmente, puedes adjuntar capturas de pantalla de la app como archivo(s) adicional(es).</li>
       </ul>
     `,
-    openDate: '16 de diciembre de 2025, 00:00',
-    closeDate: '18 de diciembre de 2025, 23:59',
+    openDate: '16 de diciembre de 2026, 00:00',
+    closeDate: '18 de diciembre de 2026, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -159,8 +159,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>Si lo prefieres, también puedes entregar un documento PDF donde expliques el código y muestres capturas.</li>
       </ul>
     `,
-    openDate: '19 de diciembre de 2025, 00:00',
-    closeDate: '25 de diciembre de 2025, 23:59',
+    openDate: '19 de diciembre de 2026, 00:00',
+    closeDate: '25 de diciembre de 2026, 23:59',
     deliveryType: 'file'
   },
 
@@ -182,8 +182,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, puedes comentar brevemente qué representan los datos de tu lista.</li>
       </ul>
     `,
-    openDate: '26 de diciembre de 2025, 00:00',
-    closeDate: '01 de enero de 2026, 23:59',
+    openDate: '26 de diciembre de 2026, 00:00',
+    closeDate: '01 de enero de 2027, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -207,8 +207,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, explica en 5–8 líneas qué hace cada sección del Dockerfile (FROM, COPY, RUN, EXPOSE, CMD...).</li>
       </ul>
     `,
-    openDate: '02 de enero de 2026, 00:00',
-    closeDate: '04 de enero de 2026, 23:59',
+    openDate: '02 de enero de 2027, 00:00',
+    closeDate: '04 de enero de 2027, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -230,8 +230,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>Opcionalmente, adjunta un archivo (imagen o PDF) con un diagrama del pipeline.</li>
       </ul>
     `,
-    openDate: '05 de enero de 2026, 00:00',
-    closeDate: '11 de enero de 2026, 23:59',
+    openDate: '05 de enero de 2027, 00:00',
+    closeDate: '11 de enero de 2027, 23:59',
     deliveryType: 'mixed'
   },
 
@@ -252,8 +252,8 @@ const ASSIGNMENTS: { [key: string]: Assignment } = {
         <li>En el cuadro de texto, explica brevemente la función de cada manifiesto (qué despliega y cómo se expone).</li>
       </ul>
     `,
-    openDate: '12 de enero de 2026, 00:00',
-    closeDate: '18 de enero de 2026, 23:59',
+    openDate: '12 de enero de 2027, 00:00',
+    closeDate: '18 de enero de 2027, 23:59',
     deliveryType: 'mixed'
   }
 };
