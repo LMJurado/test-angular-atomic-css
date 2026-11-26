@@ -3,7 +3,7 @@
     <header class="navbar app-header modern-header">
       <div class="container-fluid modern-header__inner">
         <a class="navbar-brand modern-brand" routerLink="/nuevo/inicio">
-          <img src="assets/img/ICONO APP.png" alt="" class="navbar-logo">
+          <img [src]="theme.theme() === 'dark' ? 'assets/img/favicon-for-dark-theme.png' : 'assets/img/favicon-for-light-theme.png'" alt="" class="navbar-logo">
           <span>Academia Web &amp; DevOps</span>
         </a>
 

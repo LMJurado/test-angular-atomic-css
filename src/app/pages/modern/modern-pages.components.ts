@@ -17,6 +17,7 @@ import { AuthService } from '../../services/auth.service';
 import { ProgressService } from '../../services/progress.service';
 import { SoundService } from '../../services/sound.service';
 import { LearningRepository } from '../../core/repositories/learning.repository';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-modern-login',
@@ -29,7 +30,8 @@ export class ModernLoginComponent extends LoginPageLogic {
     fb: UntypedFormBuilder,
     private modernAuth: AuthService,
     private modernRouter: Router,
-    private modernSound: SoundService
+    private modernSound: SoundService,
+    public theme: ThemeService
   ) {
     super(fb, modernAuth, modernRouter, modernSound);
   }

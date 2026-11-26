@@ -39,6 +39,12 @@ export class ThemeService {
     }
 
     this.document.documentElement.setAttribute('data-theme', theme);
+    const favicon = this.document.querySelector<HTMLLinkElement>('#app-favicon');
+    if (favicon) {
+      favicon.href = theme === 'dark'
+        ? 'assets/img/favicon-for-dark-theme.png'
+        : 'assets/img/favicon-for-light-theme.png';
+    }
     this.document.defaultView?.localStorage.setItem(THEME_STORAGE_KEY, theme);
   }
 }
