@@ -17,7 +17,7 @@ export abstract class WelcomePageLogic implements OnInit {
   modules: ModuleCard[];
   allModulesCompleted = false;
   currentPage = 1;
-  readonly pageSize = 2;
+  readonly pageSize = 3;
 
   constructor(
     public auth: AuthService,

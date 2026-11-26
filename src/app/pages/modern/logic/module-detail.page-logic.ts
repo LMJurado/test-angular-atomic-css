@@ -20,7 +20,7 @@ export abstract class ModuleDetailPageLogic implements OnInit {
   moduleId!: number;
   moduleConfig!: ModuleViewModel;
   currentPage = 1;
-  readonly pageSize = 2;
+  readonly pageSize = 3;
 
   constructor(
     private route: ActivatedRoute,
