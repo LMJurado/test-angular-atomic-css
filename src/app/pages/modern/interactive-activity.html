@@ -22,7 +22,7 @@
 
   <div class="embedded-activity modern-activity-frame">
     <iframe #iframeElement *ngIf="activityUrl" [src]="activityUrl" loading="lazy"
-            title="Actividad interactiva" scrolling="no" (load)="onIframeLoad()"></iframe>
+            title="Actividad interactiva" (load)="onIframeLoad()"></iframe>
   </div>
 
   <div class="modern-actions">

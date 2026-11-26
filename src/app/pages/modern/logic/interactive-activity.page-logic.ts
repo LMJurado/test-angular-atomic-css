@@ -1,5 +1,6 @@
 import {
   Directive,
+  OnDestroy,
   OnInit,
   ViewChild,
   ElementRef,
@@ -57,8 +58,15 @@ const MODULES_INFO: Record<number, ModuleInfo> = {
   }
 };
 
+const LOCAL_WORD_SEARCH_GAME_IDS: Record<string, number> = {
+  '1-2': 18,
+  '2-1': 19,
+  '2-2': 20,
+  '3-3': 21
+};
+
 @Directive()
-export abstract class InteractiveActivityPageLogic implements OnInit {
+export abstract class InteractiveActivityPageLogic implements OnInit, OnDestroy {
 
   moduleId!: number;
   topicId!: number;
@@ -71,7 +79,10 @@ export abstract class InteractiveActivityPageLogic implements OnInit {
   showCompleteMessage = false;
 
   @ViewChild('iframeElement') iframeElement!: ElementRef<HTMLIFrameElement>;
-  @ViewChild('iframeContainer') iframeContainer!: ElementRef<HTMLDivElement>;
+
+  private iframeDocument: Document | null = null;
+  private iframeResizeObserver: ResizeObserver | null = null;
+  private iframeMutationObserver: MutationObserver | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -95,14 +106,27 @@ export abstract class InteractiveActivityPageLogic implements OnInit {
     this.topicInfo = topic || this.moduleInfo.topics[0];
     this.topicId = this.topicInfo.id;
 
-    // Construir la ruta del HTML de la actividad
-    this.rawActivityPath = `assets/h5p/mod${this.moduleId}-tema${this.topicId}.html`;
+    const gameId = LOCAL_WORD_SEARCH_GAME_IDS[`${this.moduleId}-${this.topicId}`];
+    const activityUrl = new URL(
+      gameId
+        ? 'assets/games/word-search/index.html'
+        : `assets/h5p/mod${this.moduleId}-tema${this.topicId}.html`,
+      document.baseURI
+    );
+    if (gameId) activityUrl.searchParams.set('id', String(gameId));
+    this.rawActivityPath = activityUrl.toString();
     this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawActivityPath);
   }
 
   restartActivity(): void {
-    // Recargar la URL del iframe para reiniciar la actividad
-    this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawActivityPath + '?t=' + Date.now());
+    this.stopObservingIframeContent();
+    const activityUrl = new URL(this.rawActivityPath);
+    activityUrl.searchParams.set('t', String(Date.now()));
+    this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(activityUrl.toString());
+  }
+
+  ngOnDestroy(): void {
+    this.stopObservingIframeContent();
   }
 
   completeActivity(): void {
@@ -116,16 +140,31 @@ export abstract class InteractiveActivityPageLogic implements OnInit {
   }
 
   onIframeLoad(): void {
-    // Cuando el iframe cargue, ajustar su altura al contenido interno
     if (this.iframeElement && this.iframeElement.nativeElement) {
       try {
         const iframe = this.iframeElement.nativeElement;
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        
-        if (iframeDoc) {
-          // Obtener la altura del contenido del iframe
-          const height = iframeDoc.documentElement.scrollHeight || iframeDoc.body.scrollHeight;
-          iframe.style.height = (height + 20) + 'px';
+        if (!iframeDoc) return;
+
+        this.stopObservingIframeContent();
+        this.iframeDocument = iframeDoc;
+
+        const resize = () => this.resizeIframe(iframe, iframeDoc);
+        resize();
+
+        if (typeof ResizeObserver !== 'undefined') {
+          this.iframeResizeObserver = new ResizeObserver(resize);
+          this.iframeResizeObserver.observe(iframeDoc.documentElement);
+          if (iframeDoc.body) this.iframeResizeObserver.observe(iframeDoc.body);
+        }
+
+        if (typeof MutationObserver !== 'undefined') {
+          this.iframeMutationObserver = new MutationObserver(resize);
+          this.iframeMutationObserver.observe(iframeDoc.documentElement, {
+            childList: true,
+            characterData: true,
+            subtree: true
+          });
         }
       } catch (e) {
         console.error('Error al ajustar la altura del iframe:', e);
@@ -133,25 +172,31 @@ export abstract class InteractiveActivityPageLogic implements OnInit {
     }
   }
 
-  @HostListener('window:resize')
-  onWindowResize(): void {
-    // Recalcular la altura del iframe cuando la ventana se redimensione
-    this.onIframeLoad();
+  private resizeIframe(iframe: HTMLIFrameElement, iframeDoc: Document): void {
+    requestAnimationFrame(() => {
+      if (!iframe.isConnected || iframe.contentDocument !== iframeDoc) return;
+
+      const height = Math.max(
+        iframeDoc.documentElement.scrollHeight,
+        iframeDoc.body?.scrollHeight ?? 0
+      );
+      iframe.style.height = `${Math.ceil(height)}px`;
+    });
   }
 
-  @HostListener('wheel', ['$event'])
-  onMouseWheel(event: WheelEvent): void {
-    // Permitir que el scroll de la rueda del ratón funcione en la página
-    // El iframe no será scrollable, solo la página principal
-    if (this.iframeElement && this.iframeElement.nativeElement) {
-      const iframe = this.iframeElement.nativeElement;
-      const rect = iframe.getBoundingClientRect();
-      
-      // Si el scroll está dentro del iframe, ignorar para permitir scroll de página
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        // El evento se propaga naturalmente a la página
-        return;
-      }
+  private stopObservingIframeContent(): void {
+    this.iframeResizeObserver?.disconnect();
+    this.iframeMutationObserver?.disconnect();
+    this.iframeResizeObserver = null;
+    this.iframeMutationObserver = null;
+    this.iframeDocument = null;
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    const iframe = this.iframeElement?.nativeElement;
+    if (iframe && this.iframeDocument) {
+      this.resizeIframe(iframe, this.iframeDocument);
     }
   }
 }

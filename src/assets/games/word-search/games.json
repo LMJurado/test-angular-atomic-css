@@ -1,0 +1,46 @@
+[
+  {
+    "id": 18,
+    "slug": "desarrollo-web-javascript",
+    "title": "Sopa de Letras - Programación con JavaScript",
+    "subtitle": "Reconoce los elementos básicos de la programación con JavaScript.",
+    "type": "wordsearch",
+    "config": {
+      "gridSize": 14,
+      "words": ["VARIABLE", "FUNCION", "EVENTO", "DOM", "ARREGLO", "OBJETO", "BUCLE", "PROMESA"]
+    }
+  },
+  {
+    "id": 19,
+    "slug": "desarrollo-movil-introduccion",
+    "title": "Sopa de Letras - Introducción al Desarrollo de Apps",
+    "subtitle": "Identifica conceptos de diseño, experiencia de usuario y aplicaciones móviles.",
+    "type": "wordsearch",
+    "config": {
+      "gridSize": 14,
+      "words": ["APLICACION", "MOVIL", "USUARIO", "PANTALLA", "NAVEGACION", "INTERFAZ", "DISENO", "PROTOTIPO"]
+    }
+  },
+  {
+    "id": 20,
+    "slug": "desarrollo-movil-flutter",
+    "title": "Sopa de Letras - Fundamentos de Flutter",
+    "subtitle": "Refuerza los conceptos de Flutter y la construcción de interfaces con widgets.",
+    "type": "wordsearch",
+    "config": {
+      "gridSize": 14,
+      "words": ["FLUTTER", "WIDGET", "ESTADO", "COLUMNA", "FILA", "NAVEGACION", "DART", "MAQUETACION"]
+    }
+  },
+  {
+    "id": 21,
+    "slug": "devops-kubernetes",
+    "title": "Sopa de Letras - Kubernetes Básico",
+    "subtitle": "Descubre los conceptos base para orquestar aplicaciones en Kubernetes.",
+    "type": "wordsearch",
+    "config": {
+      "gridSize": 14,
+      "words": ["KUBERNETES", "POD", "CLUSTER", "SERVICIO", "NODO", "DEPLOYMENT", "ESCALADO", "ORQUESTACION"]
+    }
+  }
+]
