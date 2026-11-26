@@ -3,11 +3,18 @@
     <header class="navbar app-header modern-header">
       <div class="container-fluid modern-header__inner">
         <a class="navbar-brand modern-brand" routerLink="/nuevo/inicio">
-          <img [src]="theme.theme() === 'dark' ? 'assets/img/favicon-for-dark-theme.png' : 'assets/img/favicon-for-light-theme.png'" alt="" class="navbar-logo">
+          <img [src]="theme.theme() === 'dark' ? 'assets/img/favicon-for-dark-theme.png' : 'assets/img/favicon-for-light-theme.png'"
+               alt="" class="navbar-logo">
           <span>Academia Web &amp; DevOps</span>
         </a>
 
         <div class="modern-header__actions">
+          @if (auth.isAdmin()) {
+            <a class="btn btn--ghost btn--sm" routerLink="/nuevo/admin">Administración</a>
+          } @else if (auth.isStudent()) {
+            <a class="btn btn--ghost btn--sm" routerLink="/nuevo/inicio">Mi aprendizaje</a>
+          }
+
           <button
             type="button"
             class="btn btn--outline btn--sm btn--icon-only"
@@ -42,7 +49,9 @@
 
   @if (!isSplashPage()) {
     <footer class="app-footer modern-footer">
-      Universidad de Nariño
+      <p>Universidad de Nariño</p>
+      <p>Creadores: Sebastian Gabriel Guerrero Muñoz y Luis Mario Jurado Eraso</p>
+      <p>© {{ currentYear }} Academia Web &amp; DevOps. Todos los derechos reservados.</p>
     </footer>
   }
 </div>

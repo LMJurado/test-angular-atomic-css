@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ProgressRepository, StoredProgress } from '../core/repositories/progress.repository';
+import { PROGRESS_STORAGE_PREFIX } from '../core/storage/storage-keys';
 
 interface ProgressData {
   completedModules: Set<number>;
@@ -27,16 +28,25 @@ export class ProgressService {
 
   private getStorageKey(): string {
     const user = this.auth.user;
-    if (!user || !user.username) {
-      return 'userProgress_guest';
+    if (!user || !user.id) {
+      return PROGRESS_STORAGE_PREFIX + 'guest';
     }
-    return `userProgress_${user.username}`;
+    return PROGRESS_STORAGE_PREFIX + user.id;
   }
 
   // Cargar progreso del localStorage
   private loadProgress(): void {
     const storageKey = this.getStorageKey();
-    const data = this.repository.read(storageKey);
+    let data = this.repository.read(storageKey);
+    const currentUser = this.auth.user;
+    if (!data && currentUser?.username) {
+      const legacyKey = 'userProgress_' + currentUser.username;
+      data = this.repository.read(legacyKey);
+      if (data) {
+        this.repository.write(storageKey, data);
+        this.repository.remove(legacyKey);
+      }
+    }
     if (data) {
       try {
         const progress: ProgressData = {
@@ -63,6 +73,21 @@ export class ProgressService {
       } catch (error) {
         console.error('Error al cargar progreso:', error);
       }
+    } else if (currentUser?.username === '123456') {
+      const completedTopics: Record<string, number[]> = {};
+      const completedActivities: Record<string, string[]> = {};
+      for (let moduleId = 1; moduleId <= 3; moduleId++) {
+        completedTopics[moduleId] = [1, 2, 3];
+        for (let topicId = 1; topicId <= 3; topicId++) {
+          completedActivities[moduleId + '-' + topicId] = ['interactive', 'assignment'];
+        }
+      }
+      this.progressSubject.next({
+        completedModules: new Set([1, 2, 3]),
+        completedTopics: new Map(Object.entries(completedTopics).map(([id, topics]) => [Number(id), new Set(topics)])),
+        completedActivities: new Map(Object.entries(completedActivities).map(([key, activities]) => [key, new Set(activities)]))
+      });
+      this.saveProgress();
     } else {
       // Si no hay progreso guardado, inicializar vacío
       this.progressSubject.next({
@@ -78,6 +103,7 @@ export class ProgressService {
     const storageKey = this.getStorageKey();
     const progress = this.progressSubject.value;
     const data: StoredProgress = {
+      userId: this.auth.user?.id || 'guest',
       completedModules: Array.from(progress.completedModules),
       completedTopics: {},
       completedActivities: {}
@@ -189,7 +215,6 @@ export class ProgressService {
       completedTopics: new Map(),
       completedActivities: new Map()
     });
-    const storageKey = this.getStorageKey();
-    this.repository.remove(storageKey);
+    this.saveProgress();
   }
 }

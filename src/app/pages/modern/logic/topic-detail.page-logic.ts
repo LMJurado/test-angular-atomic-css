@@ -3,7 +3,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LearningRepository, ModuleRecord, TopicRecord } from '../../../core/repositories/learning.repository';
+import { ActivityRecord, LearningRepository, ModuleRecord, TopicRecord } from '../../../core/repositories/learning.repository';
 import { ProgressService } from '../../../services/progress.service';
 import { SoundService } from '../../../services/sound.service';
 
@@ -28,32 +28,7 @@ export abstract class TopicDetailPageLogic implements OnInit {
   topicCompleted = false;
   showEvaluationModal = false;
 
-  activities: Activity[] = [
-    {
-      type: 'interactive',
-      title: 'Actividad interactiva',
-      description: 'Resuelve una actividad dinámica para practicar lo aprendido.',
-      image: 'assets/img/interactiva.png',
-      isLocked: false,
-      isCompleted: false
-    },
-    {
-      type: 'assignment',
-      title: 'Actividad de entrega',
-      description: 'Entrega tu evidencia escrita o archivo sobre este tema.',
-      image: 'assets/img/subir.png',
-      isLocked: true,
-      isCompleted: false
-    },
-    {
-      type: 'evaluation',
-      title: 'Evaluación',
-      description: 'Evalúa lo aprendido en este tema.',
-      image: 'assets/img/evaluacion.png',
-      isLocked: true,
-      isCompleted: false
-    }
-  ];
+  activities: Activity[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -63,37 +38,52 @@ export abstract class TopicDetailPageLogic implements OnInit {
     private sound: SoundService
   ) { }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const modParam = this.route.snapshot.paramMap.get('modId');
     const topicParam = this.route.snapshot.paramMap.get('topicId');
 
     const modId = Number(modParam);
     const topicId = Number(topicParam);
 
-    const module = this.learningRepository.getModule(modId) ?? this.learningRepository.getModule(1)!;
+    const module = await this.learningRepository.getModule(modId);
+    if (!module || module.status !== 'ACTIVE') {
+      this.router.navigate(['/nuevo/inicio']);
+      return;
+    }
     this.moduleId = module.id;
     this.moduleConfig = module;
 
-    const foundTopic = this.moduleConfig.topics.find(t => t.id === topicId);
-    this.currentTopic = foundTopic || this.moduleConfig.topics[0];
+    const foundTopic = this.moduleConfig.topics.find(t => t.id === topicId && t.status === 'ACTIVE');
+    if (!foundTopic) {
+      this.router.navigate(['/nuevo/modulo', this.moduleId]);
+      return;
+    }
+    this.currentTopic = foundTopic;
     this.topicId = this.currentTopic.id;
 
+    this.activities = this.currentTopic.activities
+      .filter(activity => activity.status === 'ACTIVE')
+      .map(activity => this.toActivity(activity));
     this.updateActivityLocks();
   }
 
   private updateActivityLocks(): void {
     this.topicCompleted = this.progress.isTopicCompleted(this.moduleId, this.topicId);
+    const hasInteractiveActivity = this.activities.some(activity => activity.type === 'interactive');
+    const hasAssignmentActivity = this.activities.some(activity => activity.type === 'assignment');
 
-    // Actividad interactiva siempre desbloqueada
-    this.activities[0].isLocked = false;
-    this.activities[0].isCompleted = this.progress.isActivityCompleted(this.moduleId, this.topicId, 'interactive');
-
-    // Actividad de entrega se desbloquea si la interactiva está completada
-    this.activities[1].isLocked = !this.progress.isActivityCompleted(this.moduleId, this.topicId, 'interactive');
-    this.activities[1].isCompleted = this.progress.isActivityCompleted(this.moduleId, this.topicId, 'assignment');
-
-    // Evaluación se desbloquea si la entrega está completada
-    this.activities[2].isLocked = !this.progress.isActivityCompleted(this.moduleId, this.topicId, 'assignment');
+    for (const activity of this.activities) {
+      if (activity.type === 'interactive') {
+        activity.isLocked = false;
+        activity.isCompleted = this.progress.isActivityCompleted(this.moduleId, this.topicId, 'interactive');
+      } else if (activity.type === 'assignment') {
+        activity.isLocked = hasInteractiveActivity && !this.progress.isActivityCompleted(this.moduleId, this.topicId, 'interactive');
+        activity.isCompleted = this.progress.isActivityCompleted(this.moduleId, this.topicId, 'assignment');
+      } else {
+        activity.isLocked = hasAssignmentActivity && !this.progress.isActivityCompleted(this.moduleId, this.topicId, 'assignment');
+        activity.isCompleted = false;
+      }
+    }
   }
 
   onActivityClick(activity: Activity): void {
@@ -144,5 +134,17 @@ export abstract class TopicDetailPageLogic implements OnInit {
 
   playBannerSound(): void {
     this.sound.playBannerSound();
+  }
+
+  private toActivity(activity: ActivityRecord): Activity {
+    const imageByType: Record<Activity['type'], string> = {
+      interactive: 'assets/img/interactiva.png',
+      assignment: 'assets/img/subir.png',
+      evaluation: 'assets/img/evaluacion.png'
+    };
+    return {
+      type: activity.type, title: activity.title, description: activity.description,
+      image: imageByType[activity.type], isLocked: false, isCompleted: false
+    };
   }
 }

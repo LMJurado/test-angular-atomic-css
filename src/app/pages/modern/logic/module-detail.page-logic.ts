@@ -20,7 +20,7 @@ export abstract class ModuleDetailPageLogic implements OnInit {
   moduleId!: number;
   moduleConfig!: ModuleViewModel;
   currentPage = 1;
-  readonly pageSize = 3;
+  readonly pageSize = 2;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,14 +30,20 @@ export abstract class ModuleDetailPageLogic implements OnInit {
     private sound: SoundService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    const module = this.learningRepository.getModule(id) ?? this.learningRepository.getModule(1)!;
+    const module = await this.learningRepository.getModule(id);
+    if (!module || module.status !== 'ACTIVE') {
+      this.router.navigate(['/nuevo/inicio']);
+      return;
+    }
     this.moduleId = module.id;
     this.moduleConfig = {
       ...module,
       isCompleted: false,
-      topics: module.topics.map(topic => ({ ...topic, isLocked: false, isCompleted: false }))
+      topics: module.topics.filter(topic => topic.status === 'ACTIVE')
+        .sort((a, b) => a.order - b.order)
+        .map(topic => ({ ...topic, isLocked: false, isCompleted: false }))
     };
     this.updateTopicLocks();
   }
@@ -48,10 +54,10 @@ export abstract class ModuleDetailPageLogic implements OnInit {
   }
 
   private updateTopicLocks(): void {
-    for (const topic of this.moduleConfig.topics) {
+    this.moduleConfig.topics.forEach((topic, index) => {
       topic.isCompleted = this.progress.isTopicCompleted(this.moduleId, topic.id);
-      topic.isLocked = topic.id > 1 && !this.progress.isTopicCompleted(this.moduleId, topic.id - 1);
-    }
+      topic.isLocked = index > 0 && !this.progress.isTopicCompleted(this.moduleId, this.moduleConfig.topics[index - 1].id);
+    });
     this.moduleConfig.isCompleted = this.moduleConfig.topics.every(topic => topic.isCompleted);
   }
 

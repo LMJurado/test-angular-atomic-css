@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { ModernLayoutComponent } from './pages/modern/modern-layout.component';
 import { ModernSplashComponent } from './features/splash/splash.component';
+import { AdminGuard } from './core/guards/admin.guard';
 
 const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'nuevo' },
@@ -22,6 +23,7 @@ const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', component: ModernSplashComponent },
       { path: '', loadChildren: () => import('./features/auth/auth.module').then(module => module.AuthModule) },
+      { path: 'admin', canActivate: [AdminGuard], loadChildren: () => import('./features/administration/administration.module').then(module => module.AdministrationModule) },
       { path: '', loadChildren: () => import('./features/learning/learning.module').then(module => module.LearningModule) }
     ]
   },

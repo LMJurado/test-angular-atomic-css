@@ -3,6 +3,8 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ActivityRecord } from '../../../core/models/learning.model';
+import { LearningRepository } from '../../../core/repositories/learning.repository';
 import { ProgressService } from '../../../services/progress.service';
 
 interface Assignment {
@@ -11,6 +13,7 @@ interface Assignment {
   openDate: string;
   closeDate: string;
   deliveryType: 'text' | 'file' | 'mixed';
+  activityDescription?: string;
 }
 
 // Nombres de módulos
@@ -274,7 +277,8 @@ export abstract class AssignmentPageLogic implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private progress: ProgressService,
-    private router: Router
+    private router: Router,
+    private learning: LearningRepository
   ) {}
 
   ngOnInit(): void {
@@ -282,14 +286,38 @@ export abstract class AssignmentPageLogic implements OnInit {
       this.moduleId = params.get('modId') || '';
       this.topicId = params.get('topicId') || '';
 
-      const key = `${this.moduleId}-${this.topicId}`;
-      this.assignment = ASSIGNMENTS[key];
-
-      this.moduleName = MODULE_NAMES[this.moduleId] || `Módulo ${this.moduleId}`;
-      this.topicName =
-        (TOPIC_NAMES[this.moduleId] && TOPIC_NAMES[this.moduleId][this.topicId]) ||
-        `Tema ${this.topicId}`;
+      void this.loadAssignment();
     });
+  }
+
+  private async loadAssignment(): Promise<void> {
+    const moduleId = Number(this.moduleId);
+    const topicId = Number(this.topicId);
+    const module = await this.learning.getById(moduleId);
+    const topic = module?.topics.find(item => item.id === topicId);
+    const assignmentActivity = topic?.activities.find(
+      (activity: ActivityRecord) => activity.type === 'assignment' && activity.status === 'ACTIVE'
+    );
+    const key = this.moduleId + '-' + this.topicId;
+    const original = ASSIGNMENTS[key];
+
+    this.moduleName = module?.name || MODULE_NAMES[this.moduleId] || 'Módulo ' + this.moduleId;
+    this.topicName = topic?.title || (TOPIC_NAMES[this.moduleId] && TOPIC_NAMES[this.moduleId][this.topicId]) || 'Tema ' + this.topicId;
+    if (!assignmentActivity) {
+      this.assignment = undefined;
+      return;
+    }
+    const configuration = assignmentActivity.configuration || {};
+    this.assignment = original ? {
+      ...original, title: assignmentActivity.title || original.title,
+      activityDescription: assignmentActivity.description
+    } : {
+      title: assignmentActivity.title, descriptionHtml: '',
+      activityDescription: assignmentActivity.description,
+      openDate: typeof configuration['openDate'] === 'string' ? configuration['openDate'] : 'Por definir',
+      closeDate: typeof configuration['closeDate'] === 'string' ? configuration['closeDate'] : 'Por definir',
+      deliveryType: 'mixed'
+    };
   }
 
   onFileSelected(event: any): void {

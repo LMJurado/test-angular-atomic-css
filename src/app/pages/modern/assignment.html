@@ -21,6 +21,9 @@
 
     <article class="card modern-content-card">
       <div class="card-body">
+        @if (currentAssignment.activityDescription) {
+          <p class="text-muted">{{ currentAssignment.activityDescription }}</p>
+        }
         <section class="modern-assignment-description" [innerHTML]="currentAssignment.descriptionHtml"></section>
 
         <div class="delivery-times modern-delivery-times">

@@ -1,260 +1,114 @@
-import { HttpClient } from '@angular/common/http';
-// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-import { tap, catchError, delay } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 
-interface User {
-  nombre: string;
-  apellido: string;
-  email: string;
-  username: string;
-}
+import { CreateUserInput, UpdateUserInput, User, UserRole, UserStatus } from '../core/models/user.model';
+import { AuthRepository } from '../core/repositories/contracts/auth.repository';
+import { UserRepository } from '../core/repositories/contracts/user.repository';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api';
-  private readonly demoUsername = '123456';
-  private _user: User | null = null;
   private readonly userSubject = new BehaviorSubject<User | null>(null);
-  readonly userChanges$ = this.userSubject.asObservable();
-  private useMockData = true; // Usar datos locales cuando el backend no esté disponible
-  private registeredUsers: any[] = [];
+  readonly userChanges$: Observable<User | null> = this.userSubject.asObservable();
+  readonly ready: Promise<void>;
 
-  constructor(private http: HttpClient) {
-    const stored = localStorage.getItem('user');
-    if (stored) this._user = JSON.parse(stored);
-    
-    // Cargar usuarios registrados del localStorage
-    const usersStore = localStorage.getItem('registeredUsers');
-    if (usersStore) {
-      this.registeredUsers = JSON.parse(usersStore);
+  constructor(
+    private readonly users: UserRepository,
+    private readonly authRepository: AuthRepository
+  ) {
+    this.ready = this.initialize();
+  }
+
+  get user(): User | null { return this.userSubject.value; }
+
+  isLoggedIn(): boolean { return !!this.user; }
+  isAdmin(): boolean { return this.user?.role === 'ADMIN' && this.user.status === 'ACTIVE'; }
+  isStudent(): boolean { return this.user?.role === 'STUDENT' && this.user.status === 'ACTIVE'; }
+  currentUserName(): string { return this.user?.name || ''; }
+  currentUserInitials(): string { return this.user?.name.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase() || '?'; }
+
+  login(usernameOrEmail: string, password: string): Observable<User> {
+    return from(this.loginWhenReady(usernameOrEmail, password));
+  }
+
+  register(payload: Partial<CreateUserInput> & Record<string, any>): Observable<User> {
+    return from(this.registerStudent(payload));
+  }
+
+  logout(): void {
+    this.authRepository.logout();
+    this.userSubject.next(null);
+  }
+
+  userExists(username: string): Observable<boolean> {
+    return from(this.users.getByUsernameOrEmail(username).then(Boolean));
+  }
+
+  updateUserPassword(username: string, newPassword: string): Observable<void> {
+    return from(this.users.updatePassword(username, newPassword));
+  }
+
+  listUsers(): Promise<User[]> { return this.users.getAll(); }
+  getUser(id: string): Promise<User | null> { return this.users.getById(id); }
+
+  createUser(input: CreateUserInput): Promise<User> {
+    return this.users.create(input);
+  }
+
+  async updateUser(id: string, input: UpdateUserInput): Promise<User> {
+    const current = await this.users.getById(id);
+    if (!current) throw new Error('Usuario no encontrado.');
+    if (current.role === 'ADMIN' && current.status === 'ACTIVE' &&
+        ((input.role && input.role !== 'ADMIN') || (input.status && input.status !== 'ACTIVE')) &&
+        await this.users.countAdmins() <= 1) {
+      throw new Error('No puedes retirar el acceso del último administrador activo.');
     }
-
-    this.userSubject.next(this._user);
-    this.ensureDemoUser();
+    const updated = await this.users.update(id, input);
+    if (this.user?.id === updated.id) this.userSubject.next(updated);
+    return updated;
   }
 
-  get user(): User | null {
-    return this._user;
+  async changeUserRole(id: string, role: UserRole): Promise<User> {
+    return this.updateUser(id, { role });
   }
 
-  private setCurrentUser(user: User | null): void {
-    this._user = user;
+  async changeUserStatus(id: string, status: UserStatus): Promise<User> {
+    return this.updateUser(id, { status });
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    const target = await this.users.getById(id);
+    if (!target) throw new Error('Usuario no encontrado.');
+    if (target.role === 'ADMIN' && target.status === 'ACTIVE' && await this.users.countAdmins() <= 1) {
+      throw new Error('No puedes eliminar el último administrador activo.');
+    }
+    if (this.user?.id === id) throw new Error('Cierra sesión antes de eliminar tu propia cuenta.');
+    await this.users.delete(id);
+  }
+
+  private async initialize(): Promise<void> {
+    await this.users.initialize();
+    this.userSubject.next(await this.authRepository.restoreSession());
+  }
+
+  private async loginWhenReady(identifier: string, password: string): Promise<User> {
+    await this.ready;
+    const user = await this.authRepository.login(identifier, password);
     this.userSubject.next(user);
+    return user;
   }
 
-  isLoggedIn(): boolean {
-    return !!this._user;
-  }
-
-  currentUserName(): string {
-    return this._user ? this._user.nombre : '';
-  }
-
-  currentUserInitials(): string {
-    if (!this._user) return '?';
-    return this._user.nombre.charAt(0).toUpperCase();
-  }
-
-  login(usernameOrEmail: string, password: string) {
-    // Intentar con el backend primero
-    return this.http.post<User>(`${this.apiUrl}/auth/login`, {
-      usernameOrEmail, password
-    }).pipe(
-      tap(user => {
-        this.persistAuthenticatedUser(user);
-      }),
-      catchError(error => {
-        // Si el backend falla, intentar con datos locales
-        return this.loginLocal(usernameOrEmail, password);
-      })
-    );
-  }
-
-  register(payload: any) {
-    // Intentar con el backend primero
-    return this.http.post<User>(`${this.apiUrl}/auth/register`, payload)
-      .pipe(
-        tap(user => {
-          this.setCurrentUser(user);
-          localStorage.setItem('user', JSON.stringify(user));
-          this.saveUserLocally(payload);
-        }),
-        catchError(error => {
-          // Si el backend falla, registrar localmente
-          return this.registerLocal(payload);
-        })
-      );
-  }
-
-  logout() {
-    this.setCurrentUser(null);
-    localStorage.removeItem('user');
-  }
-
-  // Verificar si un usuario existe por username
-  userExists(username: string): boolean {
-    const usersStore = localStorage.getItem('registeredUsers');
-    if (!usersStore) return false;
-    
-    try {
-      const users = JSON.parse(usersStore);
-      return users.some((u: any) => u.username === username);
-    } catch {
-      return false;
-    }
-  }
-
-  // Actualizar contraseña de un usuario
-  updateUserPassword(username: string, newPassword: string) {
-    return of(null).pipe(
-      delay(500),
-      tap(() => {
-        const usersStore = localStorage.getItem('registeredUsers');
-        if (!usersStore) {
-          throw new Error('No hay usuarios registrados');
-        }
-
-        let users = JSON.parse(usersStore);
-        const userIndex = users.findIndex((u: any) => u.username === username);
-
-        if (userIndex === -1) {
-          throw new Error('Usuario no encontrado');
-        }
-
-        // Actualizar la contraseña del usuario
-        users[userIndex].password = newPassword;
-        localStorage.setItem('registeredUsers', JSON.stringify(users));
-        this.registeredUsers = users;
-      }),
-      catchError(error => {
-        return throwError(() => error);
-      })
-    );
-  }
-
-  // Métodos para datos locales
-  private loginLocal(usernameOrEmail: string, password: string) {
-    return of(null).pipe(
-      delay(500), // Simular latencia de red
-      tap(() => {
-        const user = this.registeredUsers.find(u => 
-          (u.username === usernameOrEmail || u.email === usernameOrEmail) && 
-          u.password === password
-        );
-
-        if (!user) {
-          throw new Error('Credenciales incorrectas');
-        }
-
-        const { password: _, ...userWithoutPassword } = user;
-        this.persistAuthenticatedUser(userWithoutPassword);
-      }),
-      catchError(error => {
-        return throwError(() => new Error('Credenciales incorrectas'));
-      })
-    );
-  }
-
-  private registerLocal(payload: any) {
-    return of(null).pipe(
-      delay(500), // Simular latencia de red
-      tap(() => {
-        // Validar que no exista el usuario
-        const exists = this.registeredUsers.some(u => 
-          u.email === payload.email || u.username === payload.username
-        );
-
-        if (exists) {
-          throw new Error('El usuario o email ya está registrado');
-        }
-
-        // Guardar el usuario
-        const newUser = {
-          nombre: payload.nombre,
-          apellido: payload.apellido,
-          username: payload.username,
-          email: payload.email,
-          institucion: payload.institucion || '',
-          password: payload.password // Solo almacenar localmente para demo
-        };
-
-        this.registeredUsers.push(newUser);
-        localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
-        
-        // No loguear automáticamente después del registro
-        // El usuario debe ir a login
-      }),
-      catchError(error => {
-        return throwError(() => error);
-      })
-    );
-  }
-
-  private saveUserLocally(payload: any) {
-    const newUser = {
+  private async registerStudent(payload: Partial<CreateUserInput> & Record<string, any>): Promise<User> {
+    await this.ready;
+    return this.users.create({
       nombre: payload.nombre,
       apellido: payload.apellido,
-      username: payload.username,
-      email: payload.email,
+      name: payload.name,
+      username: String(payload.username || ''),
+      email: String(payload.email || ''),
       institucion: payload.institucion || '',
-      password: payload.password
-    };
-    this.registeredUsers.push(newUser);
-    localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
-  }
-
-  private ensureDemoUser(): void {
-    const demoUser = {
-      nombre: 'Usuario de prueba',
-      apellido: 'Certificados',
-      username: this.demoUsername,
-      email: 'prueba@academia.local',
-      institucion: 'Universidad de Nariño',
-      password: '123456'
-    };
-    const existingIndex = this.registeredUsers.findIndex(
-      user => user.username === this.demoUsername
-    );
-
-    if (existingIndex === -1) {
-      this.registeredUsers.push(demoUser);
-    } else {
-      this.registeredUsers[existingIndex] = {
-        ...this.registeredUsers[existingIndex],
-        ...demoUser
-      };
-    }
-
-    localStorage.setItem('registeredUsers', JSON.stringify(this.registeredUsers));
-    this.saveDemoProgress();
-  }
-
-  private persistAuthenticatedUser(user: User): void {
-    this.setCurrentUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    if (user.username === this.demoUsername) {
-      this.saveDemoProgress();
-    }
-  }
-
-  private saveDemoProgress(): void {
-    const completedTopics: Record<string, number[]> = {};
-    const completedActivities: Record<string, string[]> = {};
-
-    for (let moduleId = 1; moduleId <= 3; moduleId++) {
-      completedTopics[moduleId] = [1, 2, 3];
-      for (let topicId = 1; topicId <= 3; topicId++) {
-        completedActivities[`${moduleId}-${topicId}`] = ['interactive', 'assignment'];
-      }
-    }
-
-    localStorage.setItem(`userProgress_${this.demoUsername}`, JSON.stringify({
-      completedModules: [1, 2, 3],
-      completedTopics,
-      completedActivities
-    }));
+      password: String(payload.password || ''),
+      role: 'STUDENT',
+      status: 'ACTIVE'
+    });
   }
 }

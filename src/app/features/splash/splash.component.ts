@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { SplashScreenPageLogic } from '../../pages/modern/logic/splash-screen.page-logic';
 import { SoundService } from '../../services/sound.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-modern-splash',
@@ -13,7 +14,8 @@ import { SoundService } from '../../services/sound.service';
 export class ModernSplashComponent extends SplashScreenPageLogic {
   constructor(
     private modernRouter: Router,
-    private modernSound: SoundService
+    private modernSound: SoundService,
+    public theme: ThemeService
   ) {
     super(modernRouter, modernSound);
   }

@@ -1,6 +1,5 @@
 import {
   Directive,
-  OnDestroy,
   OnInit,
   ViewChild,
   ElementRef,
@@ -12,6 +11,7 @@ import {
 } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProgressService } from '../../../services/progress.service';
+import { LearningRepository } from '../../../core/repositories/learning.repository';
 
 interface TopicInfo {
   id: number;
@@ -66,7 +66,7 @@ const LOCAL_WORD_SEARCH_GAME_IDS: Record<string, number> = {
 };
 
 @Directive()
-export abstract class InteractiveActivityPageLogic implements OnInit, OnDestroy {
+export abstract class InteractiveActivityPageLogic implements OnInit {
 
   moduleId!: number;
   topicId!: number;
@@ -79,54 +79,66 @@ export abstract class InteractiveActivityPageLogic implements OnInit, OnDestroy 
   showCompleteMessage = false;
 
   @ViewChild('iframeElement') iframeElement!: ElementRef<HTMLIFrameElement>;
-
-  private iframeDocument: Document | null = null;
-  private iframeResizeObserver: ResizeObserver | null = null;
-  private iframeMutationObserver: MutationObserver | null = null;
+  @ViewChild('iframeContainer') iframeContainer!: ElementRef<HTMLDivElement>;
 
   constructor(
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private progress: ProgressService,
-    private router: Router
+    private router: Router,
+    private learning: LearningRepository
   ) {}
 
   ngOnInit(): void {
-    const modParam = this.route.snapshot.paramMap.get('modId');
-    const topicParam = this.route.snapshot.paramMap.get('topicId');
+    this.route.paramMap.subscribe(params => {
+      void this.loadActivity(Number(params.get('modId')), Number(params.get('topicId')));
+    });
+  }
 
-    const modId = Number(modParam);
-    const topicId = Number(topicParam);
-
-    // Validación básica
-    this.moduleId = MODULES_INFO[modId] ? modId : 1;
-    this.moduleInfo = MODULES_INFO[this.moduleId];
-
-    const topic = this.moduleInfo.topics.find(t => t.id === topicId);
-    this.topicInfo = topic || this.moduleInfo.topics[0];
-    this.topicId = this.topicInfo.id;
-
-    const gameId = LOCAL_WORD_SEARCH_GAME_IDS[`${this.moduleId}-${this.topicId}`];
-    const activityUrl = new URL(
-      gameId
-        ? 'assets/games/word-search/index.html'
-        : `assets/h5p/mod${this.moduleId}-tema${this.topicId}.html`,
-      document.baseURI
-    );
-    if (gameId) activityUrl.searchParams.set('id', String(gameId));
-    this.rawActivityPath = activityUrl.toString();
+  private async loadActivity(moduleId: number, topicId: number): Promise<void> {
+    const module = await this.learning.getById(moduleId);
+    const topic = module?.topics.find(item => item.id === topicId && item.status === 'ACTIVE');
+    if (!module || module.status !== 'ACTIVE' || !topic) {
+      this.router.navigate(['/nuevo/inicio']);
+      return;
+    }
+    this.moduleId = module.id;
+    this.topicId = topic.id;
+    this.moduleInfo = {
+      id: module.id, name: module.name, breadcrumb: module.breadcrumb,
+      topics: module.topics.map(item => ({ id: item.id, title: item.title }))
+    };
+    this.topicInfo = { id: topic.id, title: topic.title };
+    const activity = topic.activities.find(item => item.type === 'interactive' && item.status === 'ACTIVE');
+    const configuredUrl = activity?.configuration['url'];
+    this.rawActivityPath = typeof configuredUrl === 'string'
+      ? this.getAllowedActivityUrl(configuredUrl) || this.defaultActivityPath()
+      : this.defaultActivityPath();
     this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawActivityPath);
   }
 
-  restartActivity(): void {
-    this.stopObservingIframeContent();
-    const activityUrl = new URL(this.rawActivityPath);
-    activityUrl.searchParams.set('t', String(Date.now()));
-    this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(activityUrl.toString());
+  private defaultActivityPath(): string {
+    const gameId = LOCAL_WORD_SEARCH_GAME_IDS[this.moduleId + '-' + this.topicId];
+    if (gameId) return 'assets/games/word-search/index.html?id=' + gameId;
+    return 'assets/h5p/mod' + this.moduleId + '-tema' + this.topicId + '.html';
   }
 
-  ngOnDestroy(): void {
-    this.stopObservingIframeContent();
+  private getAllowedActivityUrl(value: string): string | null {
+    if (value.startsWith('assets/h5p/') || value.startsWith('/assets/h5p/')) return value;
+    if (value.startsWith('assets/games/word-search/') || value.startsWith('/assets/games/word-search/')) return value;
+    try {
+      const url = new URL(value);
+      const allowedHosts = ['youtube.com', 'www.youtube.com', 'youtu.be', 'youtube-nocookie.com', 'www.youtube-nocookie.com'];
+      if (!allowedHosts.includes(url.hostname.toLowerCase())) return null;
+      return value;
+    } catch {
+      return null;
+    }
+  }
+
+  restartActivity(): void {
+    // Recargar la URL del iframe para reiniciar la actividad
+    this.activityUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.rawActivityPath + '?t=' + Date.now());
   }
 
   completeActivity(): void {
@@ -140,31 +152,16 @@ export abstract class InteractiveActivityPageLogic implements OnInit, OnDestroy 
   }
 
   onIframeLoad(): void {
+    // Cuando el iframe cargue, ajustar su altura al contenido interno
     if (this.iframeElement && this.iframeElement.nativeElement) {
       try {
         const iframe = this.iframeElement.nativeElement;
         const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        if (!iframeDoc) return;
 
-        this.stopObservingIframeContent();
-        this.iframeDocument = iframeDoc;
-
-        const resize = () => this.resizeIframe(iframe, iframeDoc);
-        resize();
-
-        if (typeof ResizeObserver !== 'undefined') {
-          this.iframeResizeObserver = new ResizeObserver(resize);
-          this.iframeResizeObserver.observe(iframeDoc.documentElement);
-          if (iframeDoc.body) this.iframeResizeObserver.observe(iframeDoc.body);
-        }
-
-        if (typeof MutationObserver !== 'undefined') {
-          this.iframeMutationObserver = new MutationObserver(resize);
-          this.iframeMutationObserver.observe(iframeDoc.documentElement, {
-            childList: true,
-            characterData: true,
-            subtree: true
-          });
+        if (iframeDoc) {
+          // Obtener la altura del contenido del iframe
+          const height = iframeDoc.documentElement.scrollHeight || iframeDoc.body.scrollHeight;
+          iframe.style.height = (height + 20) + 'px';
         }
       } catch (e) {
         console.error('Error al ajustar la altura del iframe:', e);
@@ -172,31 +169,25 @@ export abstract class InteractiveActivityPageLogic implements OnInit, OnDestroy 
     }
   }
 
-  private resizeIframe(iframe: HTMLIFrameElement, iframeDoc: Document): void {
-    requestAnimationFrame(() => {
-      if (!iframe.isConnected || iframe.contentDocument !== iframeDoc) return;
-
-      const height = Math.max(
-        iframeDoc.documentElement.scrollHeight,
-        iframeDoc.body?.scrollHeight ?? 0
-      );
-      iframe.style.height = `${Math.ceil(height)}px`;
-    });
-  }
-
-  private stopObservingIframeContent(): void {
-    this.iframeResizeObserver?.disconnect();
-    this.iframeMutationObserver?.disconnect();
-    this.iframeResizeObserver = null;
-    this.iframeMutationObserver = null;
-    this.iframeDocument = null;
-  }
-
   @HostListener('window:resize')
   onWindowResize(): void {
-    const iframe = this.iframeElement?.nativeElement;
-    if (iframe && this.iframeDocument) {
-      this.resizeIframe(iframe, this.iframeDocument);
+    // Recalcular la altura del iframe cuando la ventana se redimensione
+    this.onIframeLoad();
+  }
+
+  @HostListener('wheel', ['$event'])
+  onMouseWheel(event: WheelEvent): void {
+    // Permitir que el scroll de la rueda del ratón funcione en la página
+    // El iframe no será scrollable, solo la página principal
+    if (this.iframeElement && this.iframeElement.nativeElement) {
+      const iframe = this.iframeElement.nativeElement;
+      const rect = iframe.getBoundingClientRect();
+
+      // Si el scroll está dentro del iframe, ignorar para permitir scroll de página
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        // El evento se propaga naturalmente a la página
+        return;
+      }
     }
   }
 }

@@ -14,19 +14,18 @@ export interface ModuleCard extends ModuleSummary {
 export abstract class WelcomePageLogic implements OnInit {
   showLoadingOverlay = false;
   selectedModule: ModuleCard | null = null;
-  modules: ModuleCard[];
+  modules: ModuleCard[] = [];
   allModulesCompleted = false;
   currentPage = 1;
-  readonly pageSize = 3;
+  readonly pageSize = 2;
 
   constructor(
     public auth: AuthService,
     private router: Router,
     private progress: ProgressService,
-    learningRepository: LearningRepository,
+    private learningRepository: LearningRepository,
     private sound: SoundService
   ) {
-    this.modules = learningRepository.getModuleSummaries().map(module => ({ ...module, isLocked: false }));
   }
 
   get pagedModules(): ModuleCard[] {
@@ -34,7 +33,8 @@ export abstract class WelcomePageLogic implements OnInit {
     return this.modules.slice(start, start + this.pageSize);
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.modules = (await this.learningRepository.getModuleSummaries()).map(module => ({ ...module, isLocked: false }));
     this.updateModuleLocks();
   }
 

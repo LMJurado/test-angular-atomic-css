@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ProgressService } from '../../../services/progress.service';
+import { LearningRepository } from '../../../core/repositories/learning.repository';
 
 type QuestionType = 'single' | 'multi' | 'bool' | 'match' | 'text';
 
@@ -1100,22 +1101,41 @@ export abstract class EvaluationPageLogic implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private progress: ProgressService
+    private progress: ProgressService,
+    private learning: LearningRepository
   ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.moduleId = params.get('modId') || '';
       this.topicId = params.get('topicId') || '';
-      const key = `${this.moduleId}-${this.topicId}`;
-      this.evaluation = EVALUATIONS[key];
-
-      this.resetState();
-      if (this.evaluation) {
-        this.setupInitialResponses();
-        this.startTimer();
-      }
+      void this.loadEvaluation(this.moduleId + '-' + this.topicId);
     });
+  }
+
+  private async loadEvaluation(key: string): Promise<void> {
+    const module = await this.learning.getById(Number(this.moduleId));
+    const topic = module?.topics.find(item => item.id === Number(this.topicId));
+    const activity = topic?.activities.find(item => item.type === 'evaluation' && item.status === 'ACTIVE');
+    const original = EVALUATIONS[key];
+    const configuration = activity?.configuration || {};
+    const customQuestions = Array.isArray(configuration['questions'])
+      ? configuration['questions'] as Question[]
+      : null;
+    const questions = customQuestions?.length ? customQuestions : original?.questions;
+
+    this.clearTimer();
+    this.evaluation = activity && questions?.length ? {
+      title: activity.title || original?.title || 'Evaluación',
+      description: activity.description || original?.description || '',
+      minutes: Number(configuration['minutes']) || original?.minutes || 30,
+      questions
+    } : undefined;
+    this.resetState();
+    if (this.evaluation) {
+      this.setupInitialResponses();
+      this.startTimer();
+    }
   }
 
   ngOnDestroy(): void {

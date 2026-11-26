@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { UserProgress } from '../models/user-progress.model';
 
 export interface StoredProgress {
+  userId?: string;
   completedModules: number[];
   completedTopics: Record<string, number[]>;
   completedActivities: Record<string, string[]>;
+  entries?: UserProgress[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -15,8 +19,11 @@ export abstract class ProgressRepository {
 
 @Injectable({ providedIn: 'root' })
 export class LocalStorageProgressRepository extends ProgressRepository {
+  private readonly document = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
   read(key: string): StoredProgress | null {
-    const value = localStorage.getItem(key);
+    const value = this.storage()?.getItem(key);
     if (!value) return null;
 
     try {
@@ -27,10 +34,15 @@ export class LocalStorageProgressRepository extends ProgressRepository {
   }
 
   write(key: string, value: StoredProgress): void {
-    localStorage.setItem(key, JSON.stringify(value));
+    this.storage()?.setItem(key, JSON.stringify(value));
   }
 
   remove(key: string): void {
-    localStorage.removeItem(key);
+    this.storage()?.removeItem(key);
+  }
+
+  private storage(): Storage | null {
+    if (!this.isBrowser) return null;
+    try { return this.document.defaultView?.localStorage || null; } catch { return null; }
   }
 }

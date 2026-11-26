@@ -47,7 +47,7 @@ export class ModernLoginComponent extends LoginPageLogic {
     this.modernAuth.login(usernameOrEmail, password).subscribe({
       next: () => {
         this.loading = false;
-        this.modernRouter.navigate(['/nuevo/inicio']);
+        this.modernRouter.navigate([this.modernAuth.isAdmin() ? '/nuevo/admin' : '/nuevo/inicio']);
       },
       error: () => {
         this.loading = false;
@@ -257,8 +257,8 @@ export class ModernTopicDetailComponent extends TopicDetailPageLogic {
   standalone: false
 })
 export class ModernResourceComponent extends ResourcePageLogic {
-  constructor(route: ActivatedRoute) {
-    super(route);
+  constructor(route: ActivatedRoute, learningRepository: LearningRepository, sanitizer: DomSanitizer, router: Router) {
+    super(route, learningRepository, sanitizer, router);
   }
 }
 
@@ -273,9 +273,10 @@ export class ModernInteractiveActivityComponent extends InteractiveActivityPageL
     route: ActivatedRoute,
     sanitizer: DomSanitizer,
     private modernProgress: ProgressService,
-    private modernRouter: Router
+    private modernRouter: Router,
+    learningRepository: LearningRepository
   ) {
-    super(route, sanitizer, modernProgress, modernRouter);
+    super(route, sanitizer, modernProgress, modernRouter, learningRepository);
   }
 
   override completeActivity(): void {
@@ -302,9 +303,10 @@ export class ModernAssignmentComponent extends AssignmentPageLogic {
   constructor(
     route: ActivatedRoute,
     private modernProgress: ProgressService,
-    private modernRouter: Router
+    private modernRouter: Router,
+    learningRepository: LearningRepository
   ) {
-    super(route, modernProgress, modernRouter);
+    super(route, modernProgress, modernRouter, learningRepository);
   }
 
   override completeAssignment(): void {
@@ -326,7 +328,7 @@ export class ModernAssignmentComponent extends AssignmentPageLogic {
   standalone: false
 })
 export class ModernEvaluationComponent extends EvaluationPageLogic {
-  constructor(route: ActivatedRoute, progress: ProgressService) {
-    super(route, progress);
+  constructor(route: ActivatedRoute, progress: ProgressService, learningRepository: LearningRepository) {
+    super(route, progress, learningRepository);
   }
 }

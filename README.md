@@ -1,45 +1,65 @@
-# PlataformaOva
+# Plataforma OVA
 
 **Sitio publicado:** [https://lmjurado.github.io/test-angular-atomic-css/](https://lmjurado.github.io/test-angular-atomic-css/)
 
-Plataforma de aprendizaje desarrollada con Angular 22 y pnpm.
+Plataforma académica construida con Angular 22. Conserva la experiencia visual y los recursos existentes, y organiza el acceso a datos mediante repositorios para permitir cambiar LocalStorage por un servicio remoto en una fase posterior.
 
-## Estructura
+## Arquitectura
 
-- `src/app/core`: servicios de aplicación y repositorios para los datos del curso y el progreso.
-- `src/app/features`: módulos de autenticación, aprendizaje y pantalla de bienvenida; autenticación y aprendizaje se cargan bajo demanda.
-- `src/app/shared`: controles reutilizables y paginación.
-- `src/app/pages/modern/logic`: lógica de presentación de las pantallas.
+- `src/app/core/models`: modelos de usuarios, contenidos y progreso.
+- `src/app/core/repositories/contracts`: contratos de usuarios y autenticación.
+- `src/app/core/repositories/implementations`: adaptadores locales para usuarios, autenticación y contenido.
+- `src/app/core/repositories/learning.repository.ts`: contrato CRUD de módulos, temas, recursos y actividades.
+- `src/app/core/repositories/progress.repository.ts`: persistencia de progreso.
+- `src/app/services`: lógica de sesión, progreso y preferencias de interfaz.
+- `src/app/features`: aprendizaje, autenticación y administración.
+- `src/app/pages/modern/logic`: lógica de las pantallas existentes.
+- `src/app/shared`: controles reutilizables, incluida la paginación.
+- `src/app/css`: estilos organizados con Atomic Design.
 
-Las listas de módulos y temas usan el paginador compartido. El progreso se lee y escribe mediante `ProgressRepository`, separado de la lógica de pantalla.
+Los componentes llaman servicios y repositorios; los adaptadores de persistencia son la única capa de la aplicación que lee o escribe los datos académicos y de usuario en LocalStorage. Las interfaces de repositorio devuelven `Promise`, de modo que una implementación remota puede sustituir los adaptadores locales mediante inyección de dependencias.
 
-## Servidor de desarrollo
+## Modelos y persistencia
 
-Instala las dependencias con `pnpm install` y ejecuta `pnpm start`.
+Los usuarios tienen identificador, nombre, correo, rol (`ADMIN` o `STUDENT`), estado y fechas de creación y actualización. Los contenidos usan módulos y temas con identificadores únicos dentro de su módulo; cada tema contiene recursos y actividades. El progreso se guarda en una clave distinta por usuario.
 
-- Todas las rutas de la aplicación muestran las pantallas con el sistema atómico de CSS bajo `/nuevo`.
-- Las rutas antiguas redirigen a sus equivalentes en `/nuevo`; por ejemplo, `/login` redirige a `/nuevo/login`.
-- La ruta `http://localhost:4200/nuevo` muestra la bienvenida y luego continúa al inicio de sesión.
-- Para revisar el certificado, inicia sesión en `/nuevo/login` con el usuario de prueba `123456` y la contraseña `123456`. Esta cuenta tiene todas las rutas habilitadas y el certificado disponible desde el inicio.
-- La barra de navegación permite cambiar entre tema claro y oscuro; la preferencia se guarda en el navegador y se sincroniza con las actividades locales. El contenido de servicios externos conserva su propio tema.
-- Las actividades HTML de `src/assets/h5p` comparten `src/assets/css/activity-theme.css` y los mismos tokens de color que la aplicación. La actividad eXe añade `src/assets/css/h5p-exe-theme.css` sin quitar las hojas necesarias para que funcione el juego.
+Las claves nuevas usan el prefijo `plataforma-ova.*` y el esquema registra su versión. Al iniciar, se cargan los contenidos predeterminados solo cuando aún no existen datos; los usuarios anteriores se migran cuando es posible y sus contraseñas se convierten en hashes PBKDF2 con sal. No se reemplazan los cambios ya guardados. El progreso antiguo se migra al identificador del usuario que inicia sesión.
 
-## Generar componentes
+Para reiniciar los datos locales, cierra la aplicación y elimina del almacenamiento del sitio las claves `plataforma-ova.users.v1`, `plataforma-ova.session.v1`, `plataforma-ova.learning.v1`, `plataforma-ova.progress.*` y `plataforma-ova.schema-version`. Al cargar de nuevo se inicializará el contenido de demostración. Esta operación es explícita y elimina los cambios guardados localmente.
 
-Ejecuta `pnpm ng generate component component-name` para crear un componente. También puedes usar `pnpm ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Autenticación de demostración
 
-## Compilación
+La autenticación está aislada en `AuthRepository` y `UserRepository`. Las cuentas iniciales son:
 
-Ejecuta `pnpm build` para compilar el proyecto. Los archivos generados se guardan en `dist/`.
+| Usuario | Rol | Correo |
+| --- | --- | --- |
+| `Merculeaft` | ADMIN | `merculeaft@demo.local` |
+| `Gabomac211` | ADMIN | `gabomac211@demo.local` |
+| `123456` | STUDENT | `prueba@academia.local` |
 
-## Pruebas unitarias
+Las claves iniciales de las cuentas administrativas son las entregadas al propietario durante la configuración; no se incluyen en este archivo ni en texto plano en el código. La cuenta de estudiante usa credenciales de demostración locales. Los hashes PBKDF2 y las sesiones permanecen en el navegador. Esta autenticación y los guards solo sirven para demostración: cualquier usuario puede alterar el almacenamiento local y no se debe usar para proteger datos o permisos en producción.
 
-Ejecuta `pnpm test` para correr las pruebas unitarias con Karma.
+## Experiencia y rutas
 
-## Pruebas end-to-end
+Las pantallas académicas existentes están protegidas para estudiantes autenticados. El rol decide la navegación; el guard administrativo protege el área de gestión.
 
-Ejecuta `pnpm ng e2e` para correr pruebas end-to-end. Primero debes agregar un paquete que implemente esa plataforma de pruebas.
+- Entrada y autenticación: `/nuevo/login`, `/nuevo/registro`, `/nuevo/olvido-contrasena`.
+- Aprendizaje: `/nuevo/inicio`, `/nuevo/modulo/:id`, `/nuevo/modulo/:modId/tema/:topicId` y las rutas de actividad, actividad interactiva, evaluación y recursos.
+- Administración: `/nuevo/admin`, `/nuevo/admin/modulos`, `/nuevo/admin/modulos/crear`, `/nuevo/admin/modulos/editar/:id`, `/nuevo/admin/temas`, `/nuevo/admin/recursos`, `/nuevo/admin/actividades` y `/nuevo/admin/usuarios`.
 
-## Ayuda
+El panel permite gestionar módulos, temas, recursos, actividades y cuentas. Solicita confirmación antes de eliminar, y evita eliminar, desactivar o degradar al último administrador activo. El contenido H5P existente se conserva.
 
-Para más información sobre Angular CLI, ejecuta `pnpm ng help` o consulta la [referencia de Angular CLI](https://angular.dev/tools/cli).
+## Ejecutar el proyecto
+
+Requiere Node.js compatible con Angular 22 y pnpm. Instala dependencias y ejecuta el servidor local:
+
+```sh
+pnpm install
+pnpm start
+```
+
+Abre `http://localhost:4200/`. La compilación se verifica con `pnpm build` y las pruebas unitarias con `pnpm test -- --watch=false --browsers=ChromeHeadless`.
+
+## Migración futura a Supabase o API REST
+
+Implementa los contratos existentes con nuevos adaptadores remotos y regístralos en `CoreModule`. Los componentes y servicios de presentación conservan sus contratos; los datos locales se podrán migrar mediante un proceso versionado. Para producción, reemplaza también la autenticación de demostración por un proveedor seguro y aplica autorización del lado del servidor.

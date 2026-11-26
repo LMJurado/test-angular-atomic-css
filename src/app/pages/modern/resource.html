@@ -12,32 +12,32 @@
   <header class="modern-page-heading">
     <p class="modern-eyebrow">MATERIAL COMPLEMENTARIO</p>
     <h1>Recursos del módulo</h1>
-    <p class="text-muted">Revisa el video antes de continuar con las actividades.</p>
+    <p class="text-muted">Revisa los recursos disponibles antes de continuar con las actividades.</p>
   </header>
 
-  @if (moduleId === 1) {
+  @if (resources.length === 0) {
     <section class="modern-resource-section">
-      <h2>Desarrollo Web</h2>
-      <div class="modern-video">
-        <iframe loading="lazy" src="https://www.youtube.com/embed/VPQICmxcXqE"
-                title="Video de Desarrollo Web" allowfullscreen></iframe>
-      </div>
+      <h2>{{ moduleName }}</h2>
+      <p class="text-muted">Todavía no hay recursos publicados para este módulo.</p>
     </section>
-  } @else if (moduleId === 2) {
+  } @else {
     <section class="modern-resource-section">
-      <h2>Desarrollo Móvil</h2>
-      <div class="modern-video">
-        <iframe loading="lazy" src="https://www.youtube.com/embed/Wc5OBu6PaKQ"
-                title="Video de Desarrollo Móvil" allowfullscreen></iframe>
-      </div>
-    </section>
-  } @else if (moduleId === 3) {
-    <section class="modern-resource-section">
-      <h2>DevOps y Automatización</h2>
-      <div class="modern-video">
-        <iframe loading="lazy" src="https://www.youtube.com/embed/wfLS5kEcDrM"
-                title="Video de DevOps" allowfullscreen></iframe>
-      </div>
+      <h2>{{ moduleName }}</h2>
+      @for (resource of resources; track resource.id) {
+        <article class="modern-resource-item">
+          <h3>{{ resource.title }}</h3>
+          @if (resource.description) {
+            <p class="text-muted">{{ resource.description }}</p>
+          }
+          @if (resource.type === 'video' && resource.safeUrl) {
+            <div class="modern-video">
+              <iframe loading="lazy" [src]="resource.safeUrl" [title]="resource.title" allowfullscreen></iframe>
+            </div>
+          } @else {
+            <a [href]="resource.url" target="_blank" rel="noopener noreferrer">{{ resource.type === 'document' ? 'Abrir documento' : 'Abrir recurso' }}</a>
+          }
+        </article>
+      }
     </section>
   }
 

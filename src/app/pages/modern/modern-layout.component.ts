@@ -11,6 +11,8 @@ import { ThemeService } from '../../services/theme.service';
   standalone: false
 })
 export class ModernLayoutComponent {
+  readonly currentYear = new Date().getFullYear();
+
   constructor(
     public auth: AuthService,
     public theme: ThemeService,

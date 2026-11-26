@@ -1,74 +1,47 @@
-import { Injectable } from '@angular/core';
+import {
+  ActivityRecord, ActivityType, ContentStatus, ModuleRecord, ModuleSummary,
+  ResourceRecord, ResourceType, TopicRecord
+} from '../models/learning.model';
 
-export interface TopicRecord {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-}
+export type { ActivityRecord, ActivityType, ContentStatus, ModuleRecord, ModuleSummary, ResourceRecord, ResourceType, TopicRecord };
 
-export interface ModuleRecord {
-  id: number;
-  name: string;
-  breadcrumb: string;
-  image: string;
-  topics: TopicRecord[];
-}
+export type NewModule = Omit<ModuleRecord, 'id' | 'topics'> & { topics?: TopicRecord[] };
+export type NewTopic = Omit<TopicRecord, 'id' | 'key' | 'moduleId' | 'resources' | 'activities'> & {
+  resources?: ResourceRecord[];
+  activities?: ActivityRecord[];
+};
+export type NewResource = Omit<ResourceRecord, 'id' | 'topicId'>;
+export type NewActivity = Omit<ActivityRecord, 'id' | 'topicId'>;
 
-export interface ModuleSummary {
-  id: number;
-  title: string;
-  image: string;
-}
+export abstract class LearningRepository {
+  abstract getAll(): Promise<ModuleRecord[]>;
+  abstract getById(id: number): Promise<ModuleRecord | null>;
+  abstract create(data: NewModule): Promise<ModuleRecord>;
+  abstract update(id: number, data: Partial<NewModule>): Promise<ModuleRecord>;
+  abstract delete(id: number): Promise<void>;
+  abstract setStatus(id: number, status: ContentStatus): Promise<ModuleRecord>;
+  abstract createTopic(moduleId: number, data: NewTopic): Promise<TopicRecord>;
+  abstract updateTopic(moduleId: number, topicId: number, data: Partial<NewTopic>): Promise<TopicRecord>;
+  abstract deleteTopic(moduleId: number, topicId: number): Promise<void>;
+  abstract createResource(moduleId: number, topicId: number, data: NewResource): Promise<ResourceRecord>;
+  abstract updateResource(moduleId: number, topicId: number, resourceId: string, data: Partial<NewResource>): Promise<ResourceRecord>;
+  abstract deleteResource(moduleId: number, topicId: number, resourceId: string): Promise<void>;
+  abstract createActivity(moduleId: number, topicId: number, data: NewActivity): Promise<ActivityRecord>;
+  abstract updateActivity(moduleId: number, topicId: number, activityId: string, data: Partial<NewActivity>): Promise<ActivityRecord>;
+  abstract deleteActivity(moduleId: number, topicId: number, activityId: string): Promise<void>;
 
-const MODULES: ModuleRecord[] = [
-  {
-    id: 1,
-    name: 'Desarrollo Web',
-    breadcrumb: 'Desarrollo Web',
-    image: 'assets/img/b3.png',
-    topics: [
-      { id: 1, title: 'Fundamentos de HTML y CSS', description: 'Estructura básica de la web, etiquetas principales y estilos con CSS.', image: 'assets/img/tema1.png' },
-      { id: 2, title: 'Programación con JavaScript', description: 'Variables, funciones, DOM, eventos y buenas prácticas en JavaScript moderno.', image: 'assets/img/tema2.png' },
-      { id: 3, title: 'Angular Básico', description: 'Componentes, módulos, data binding y servicios en aplicaciones SPA con Angular.', image: 'assets/img/tema3.png' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Desarrollo Móvil',
-    breadcrumb: 'Desarrollo Móvil',
-    image: 'assets/img/b1.png',
-    topics: [
-      { id: 1, title: 'Introducción al Desarrollo de Apps', description: 'Tipos de apps, UX/UI móvil, navegación y patrones básicos de arquitectura.', image: 'assets/img/tema21.png' },
-      { id: 2, title: 'Fundamentos de Flutter', description: 'Widgets, maquetación responsiva, navegación y manejo de estado en Flutter.', image: 'assets/img/tema22.png' },
-      { id: 3, title: 'React Native Básico', description: 'Componentes, hooks y navegación para construir apps nativas con JavaScript.', image: 'assets/img/tema23.png' }
-    ]
-  },
-  {
-    id: 3,
-    name: 'DevOps y Automatización',
-    breadcrumb: 'DevOps y Automatización',
-    image: 'assets/img/b2.png',
-    topics: [
-      { id: 1, title: 'Docker y Contenedores', description: 'Imágenes, contenedores y flujos de trabajo para entornos reproducibles.', image: 'assets/img/tema31.png' },
-      { id: 2, title: 'Integración Continua (CI/CD)', description: 'Pipelines de build, test y despliegue automático con herramientas modernas.', image: 'assets/img/tema32.png' },
-      { id: 3, title: 'Kubernetes Básico', description: 'Conceptos base para orquestar contenedores: pods, deployments y servicios.', image: 'assets/img/tema33.png' }
-    ]
-  }
-];
-
-@Injectable({ providedIn: 'root' })
-export class LearningRepository {
-  getModuleSummaries(): ModuleSummary[] {
-    return MODULES.map(({ id, name, image }) => ({ id, title: name, image }));
+  async getByTopic(moduleId: number, topicId: number): Promise<TopicRecord | null> {
+    const module = await this.getById(moduleId);
+    return module?.topics.find(topic => topic.id === topicId) || null;
   }
 
-  getModules(): ModuleRecord[] {
-    return MODULES.map(module => ({ ...module, topics: module.topics.map(topic => ({ ...topic })) }));
+  async getModuleSummaries(): Promise<ModuleSummary[]> {
+    return (await this.getAll())
+      .filter(module => module.status === 'ACTIVE')
+      .sort((a, b) => a.order - b.order)
+      .map(({ id, name, image }) => ({ id, title: name, image }));
   }
 
-  getModule(id: number): ModuleRecord | undefined {
-    const module = MODULES.find(item => item.id === id);
-    return module ? { ...module, topics: module.topics.map(topic => ({ ...topic })) } : undefined;
-  }
+  getModules(): Promise<ModuleRecord[]> { return this.getAll(); }
+  getModule(id: number): Promise<ModuleRecord | null> { return this.getById(id); }
 }

@@ -42,19 +42,22 @@ export abstract class ForgotPasswordPageLogic {
     const { username } = this.usernameForm.value;
 
     // Verificar si el usuario existe
-    if (this.auth.userExists(username!)) {
-      setTimeout(() => {
+    this.auth.userExists(username!).subscribe({
+      next: exists => setTimeout(() => {
         this.loading = false;
-        this.foundUsername = username!;
-        this.success = `Usuario encontrado. Procede a cambiar tu contraseña.`;
-        this.step = 'reset';
-      }, 800);
-    } else {
-      setTimeout(() => {
+        if (exists) {
+          this.foundUsername = username!;
+          this.success = 'Usuario encontrado. Procede a cambiar tu contraseña.';
+          this.step = 'reset';
+        } else {
+          this.error = 'El nombre de usuario no existe en el sistema.';
+        }
+      }, 400),
+      error: () => {
         this.loading = false;
-        this.error = 'El nombre de usuario no existe en el sistema.';
-      }, 800);
-    }
+        this.error = 'No se pudo consultar el usuario.';
+      }
+    });
   }
 
   submitReset() {
