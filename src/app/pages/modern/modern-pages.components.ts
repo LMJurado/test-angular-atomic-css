@@ -68,7 +68,8 @@ export class ModernRegisterComponent extends RegisterPageLogic {
     fb: UntypedFormBuilder,
     private modernAuth: AuthService,
     private modernRouter: Router,
-    private modernSound: SoundService
+    private modernSound: SoundService,
+    public theme: ThemeService
   ) {
     super(fb, modernAuth, modernRouter, modernSound);
   }
