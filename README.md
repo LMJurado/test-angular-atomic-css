@@ -2,6 +2,15 @@
 
 Plataforma de aprendizaje desarrollada con Angular 22 y pnpm.
 
+## Estructura
+
+- `src/app/core`: servicios de aplicación y repositorios para los datos del curso y el progreso.
+- `src/app/features`: módulos de autenticación, aprendizaje y pantalla de bienvenida; autenticación y aprendizaje se cargan bajo demanda.
+- `src/app/shared`: controles reutilizables y paginación.
+- `src/app/pages/modern/logic`: lógica de presentación de las pantallas.
+
+Las listas de módulos y temas usan el paginador compartido. El progreso se lee y escribe mediante `ProgressRepository`, separado de la lógica de pantalla.
+
 ## Servidor de desarrollo
 
 Instala las dependencias con `pnpm install` y ejecuta `pnpm start`.

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { ProgressRepository, StoredProgress } from '../core/repositories/progress.repository';
 
 interface ProgressData {
   completedModules: Set<number>;
@@ -20,13 +21,8 @@ export class ProgressService {
 
   progress$: Observable<ProgressData> = this.progressSubject.asObservable();
 
-  constructor(private auth: AuthService) {
-    this.loadProgress();
-    
-    // Recargar progreso cuando el usuario cambie
-    setInterval(() => {
-      this.loadProgress();
-    }, 500);
+  constructor(private auth: AuthService, private repository: ProgressRepository) {
+    this.auth.userChanges$.subscribe(() => this.loadProgress());
   }
 
   private getStorageKey(): string {
@@ -40,10 +36,9 @@ export class ProgressService {
   // Cargar progreso del localStorage
   private loadProgress(): void {
     const storageKey = this.getStorageKey();
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
+    const data = this.repository.read(storageKey);
+    if (data) {
       try {
-        const data = JSON.parse(stored);
         const progress: ProgressData = {
           completedModules: new Set(data.completedModules || []),
           completedTopics: new Map(),
@@ -82,10 +77,10 @@ export class ProgressService {
   private saveProgress(): void {
     const storageKey = this.getStorageKey();
     const progress = this.progressSubject.value;
-    const data = {
+    const data: StoredProgress = {
       completedModules: Array.from(progress.completedModules),
-      completedTopics: {} as any,
-      completedActivities: {} as any
+      completedTopics: {},
+      completedActivities: {}
     };
 
     // Convertir Map de temas a objeto
@@ -98,7 +93,7 @@ export class ProgressService {
       data.completedActivities[key] = Array.from(activities);
     });
 
-    localStorage.setItem(storageKey, JSON.stringify(data));
+    this.repository.write(storageKey, data);
   }
 
   // Marcar módulo como completado
@@ -195,6 +190,6 @@ export class ProgressService {
       completedActivities: new Map()
     });
     const storageKey = this.getStorageKey();
-    localStorage.removeItem(storageKey);
+    this.repository.remove(storageKey);
   }
 }

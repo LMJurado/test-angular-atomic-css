@@ -1,75 +1,64 @@
 import { Directive, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { LearningRepository, ModuleSummary } from '../../../core/repositories/learning.repository';
 import { AuthService } from '../../../services/auth.service';
 import { ProgressService } from '../../../services/progress.service';
+import { SoundService } from '../../../services/sound.service';
 
-interface Module {
-  id: number;
-  title: string;
-  image: string;
+export interface ModuleCard extends ModuleSummary {
   isLocked: boolean;
 }
 
 @Directive()
 export abstract class WelcomePageLogic implements OnInit {
   showLoadingOverlay = false;
-  selectedModule: Module | null = null;
-
-  modules: Module[] = [
-    { id: 1, title: 'Desarrollo Web', image: 'assets/img/b3.png', isLocked: false },
-    { id: 2, title: 'Desarrollo Móvil', image: 'assets/img/b1.png', isLocked: true },
-    { id: 3, title: 'DevOps y Automatización', image: 'assets/img/b2.png', isLocked: true }
-  ];
-
+  selectedModule: ModuleCard | null = null;
+  modules: ModuleCard[];
   allModulesCompleted = false;
+  currentPage = 1;
+  readonly pageSize = 2;
 
   constructor(
     public auth: AuthService,
     private router: Router,
-    private progress: ProgressService
-  ) {}
+    private progress: ProgressService,
+    learningRepository: LearningRepository,
+    private sound: SoundService
+  ) {
+    this.modules = learningRepository.getModuleSummaries().map(module => ({ ...module, isLocked: false }));
+  }
+
+  get pagedModules(): ModuleCard[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.modules.slice(start, start + this.pageSize);
+  }
 
   ngOnInit(): void {
     this.updateModuleLocks();
   }
 
   private updateModuleLocks(): void {
-    // Módulo 1 siempre desbloqueado
-    this.modules[0].isLocked = false;
-
-    // Módulo 2 se desbloquea si el módulo 1 está completado
-    this.modules[1].isLocked = !this.progress.isModuleCompleted(1);
-
-    // Módulo 3 se desbloquea si el módulo 2 está completado
-    this.modules[2].isLocked = !this.progress.isModuleCompleted(2);
-
-    // Verificar si todos los módulos están completados
-    this.allModulesCompleted = this.modules.every(m => this.progress.isModuleCompleted(m.id));
+    this.modules.forEach((module, index) => {
+      module.isLocked = index > 0 && !this.progress.isModuleCompleted(this.modules[index - 1].id);
+    });
+    this.allModulesCompleted = this.modules.every(module => this.progress.isModuleCompleted(module.id));
   }
 
-  onModuleClick(module: Module): void {
+  onModuleClick(module: ModuleCard): void {
     if (module.isLocked) {
-      alert(`Este módulo está bloqueado. Debes completar el módulo anterior primero.`);
+      alert('Este módulo está bloqueado. Debes completar el módulo anterior primero.');
       return;
     }
 
     this.selectedModule = module;
     this.showLoadingOverlay = true;
     this.playBannerSound();
-
-    // Después de 1.5 segundos, navega al módulo
-    setTimeout(() => {
-      this.router.navigate(['/modulo', module.id]);
-    }, 1500);
+    setTimeout(() => this.router.navigate(['/modulo', module.id]), 1500);
   }
 
   playBannerSound(): void {
-    const audio = new Audio('assets/img/banner1.mp3');
-    audio.volume = 0.5;
-    audio.play().catch(error => {
-      console.warn('No se pudo reproducir el sonido:', error);
-    });
+    this.sound.playBannerSound('assets/img/banner1.mp3');
   }
 
   downloadDiploma(): void {

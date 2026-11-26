@@ -1,11 +1,12 @@
 import { Directive, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { SoundService } from '../../../services/sound.service';
 
 @Directive()
 export abstract class SplashScreenPageLogic implements OnInit {
   isExiting = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private sound: SoundService) {}
 
   ngOnInit(): void {
     // Esperar 3.5 segundos para iniciar la transición de salida
@@ -21,14 +22,6 @@ export abstract class SplashScreenPageLogic implements OnInit {
   }
 
   playStartSound(): void {
-    try {
-      const audio = new Audio('assets/img/sonido inicio.mp3');
-      audio.volume = 0.8; // Volumen al 80%
-      audio.play().catch(error => {
-        console.log('No se pudo reproducir el sonido:', error);
-      });
-    } catch (error) {
-      console.log('Error al intentar reproducir el sonido:', error);
-    }
+    this.sound.playStartSound();
   }
 }

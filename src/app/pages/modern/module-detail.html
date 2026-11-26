@@ -30,7 +30,7 @@
       </div>
     </article>
 
-    @for (topic of moduleConfig?.topics; track topic.id) {
+    @for (topic of pagedTopics; track topic.id) {
       <article class="card modern-card" [class.locked-card]="topic.isLocked"
                [class.completed-card]="topic.isCompleted">
         <img [src]="topic.image" [alt]="topic.title" class="modern-card__image">
@@ -53,6 +53,10 @@
       </article>
     }
   </div>
+
+  <app-pagination [currentPage]="currentPage" [pageSize]="pageSize"
+                  [totalItems]="moduleConfig?.topics?.length ?? 0" (pageChange)="currentPage = $event">
+  </app-pagination>
 
   <a class="btn btn--ghost modern-back-link" routerLink="/nuevo/inicio">← Volver a mis módulos</a>
 </section>

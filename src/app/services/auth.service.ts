@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 // src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError, delay } from 'rxjs/operators';
 
 interface User {
@@ -16,6 +16,8 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
   private readonly demoUsername = '123456';
   private _user: User | null = null;
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
+  readonly userChanges$ = this.userSubject.asObservable();
   private useMockData = true; // Usar datos locales cuando el backend no esté disponible
   private registeredUsers: any[] = [];
 
@@ -29,11 +31,17 @@ export class AuthService {
       this.registeredUsers = JSON.parse(usersStore);
     }
 
+    this.userSubject.next(this._user);
     this.ensureDemoUser();
   }
 
   get user(): User | null {
     return this._user;
+  }
+
+  private setCurrentUser(user: User | null): void {
+    this._user = user;
+    this.userSubject.next(user);
   }
 
   isLoggedIn(): boolean {
@@ -69,7 +77,7 @@ export class AuthService {
     return this.http.post<User>(`${this.apiUrl}/auth/register`, payload)
       .pipe(
         tap(user => {
-          this._user = user;
+          this.setCurrentUser(user);
           localStorage.setItem('user', JSON.stringify(user));
           this.saveUserLocally(payload);
         }),
@@ -81,7 +89,7 @@ export class AuthService {
   }
 
   logout() {
-    this._user = null;
+    this.setCurrentUser(null);
     localStorage.removeItem('user');
   }
 
@@ -224,7 +232,7 @@ export class AuthService {
   }
 
   private persistAuthenticatedUser(user: User): void {
-    this._user = user;
+    this.setCurrentUser(user);
     localStorage.setItem('user', JSON.stringify(user));
 
     if (user.username === this.demoUsername) {

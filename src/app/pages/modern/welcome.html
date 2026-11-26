@@ -18,7 +18,7 @@
   </header>
 
   <div class="modern-card-grid">
-    @for (module of modules; track module.id) {
+    @for (module of pagedModules; track module.id) {
       <article class="card modern-card" [class.locked-card]="module.isLocked">
         <img [src]="module.image" [alt]="module.title" class="modern-card__image">
         <div class="card-body modern-card__body">
@@ -46,6 +46,10 @@
       </article>
     }
   </div>
+
+  <app-pagination [currentPage]="currentPage" [pageSize]="pageSize"
+                  [totalItems]="modules.length" (pageChange)="currentPage = $event">
+  </app-pagination>
 
   <section class="modern-diploma">
     <div>

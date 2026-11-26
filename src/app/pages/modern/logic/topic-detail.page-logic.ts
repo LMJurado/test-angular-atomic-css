@@ -3,7 +3,9 @@ import {
   OnInit,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { LearningRepository, ModuleRecord, TopicRecord } from '../../../core/repositories/learning.repository';
 import { ProgressService } from '../../../services/progress.service';
+import { SoundService } from '../../../services/sound.service';
 
 interface Activity {
   type: 'interactive' | 'assignment' | 'evaluation';
@@ -14,97 +16,7 @@ interface Activity {
   isCompleted: boolean;
 }
 
-interface Topic {
-  id: number;
-  title: string;
-  description: string;
-  image?: string;
-}
-
-interface ModuleConfig {
-  id: number;
-  name: string;
-  breadcrumb: string;
-  topics: Topic[];
-}
-
-const MODULES_CONFIG: Record<number, ModuleConfig> = {
-  1: {
-    id: 1,
-    name: 'Desarrollo Web',
-    breadcrumb: 'Desarrollo Web',
-    topics: [
-      {
-        id: 1,
-        title: 'Fundamentos de HTML y CSS',
-        description: 'Estructura básica de la web, etiquetas principales, CSS, Flexbox y Grid.',
-        image: 'assets/img/tema1.png'
-      },
-      {
-        id: 2,
-        title: 'Programación con JavaScript',
-        description: 'Variables, funciones, DOM, eventos y buenas prácticas en JavaScript moderno.',
-        image: 'assets/img/tema2.png'
-      },
-      {
-        id: 3,
-        title: 'Angular Básico',
-        description: 'Componentes, módulos, data binding y servicios en aplicaciones SPA con Angular.',
-        image: 'assets/img/tema3.png'
-      }
-    ]
-  },
-  2: {
-    id: 2,
-    name: 'Desarrollo Móvil',
-    breadcrumb: 'Desarrollo Móvil',
-    topics: [
-      {
-        id: 1,
-        title: 'Introducción al Desarrollo de Apps',
-        description: 'Tipos de apps, UX/UI móvil, navegación y patrones básicos de arquitectura.',
-        image: 'assets/img/tema21.png'
-      },
-      {
-        id: 2,
-        title: 'Fundamentos de Flutter',
-        description: 'Widgets, maquetación responsiva, navegación y manejo de estado en Flutter.',
-        image: 'assets/img/tema22.png'
-      },
-      {
-        id: 3,
-        title: 'React Native Básico',
-        description: 'Componentes, hooks y navegación para construir apps nativas con JavaScript.',
-        image: 'assets/img/tema23.png'
-      }
-    ]
-  },
-  3: {
-    id: 3,
-    name: 'DevOps y Automatización',
-    breadcrumb: 'DevOps y Automatización',
-    topics: [
-      {
-        id: 1,
-        title: 'Docker y Contenedores',
-        description: 'Imágenes, contenedores y flujos de trabajo para entornos reproducibles.',
-        image: 'assets/img/tema31.png'
-      },
-      {
-        id: 2,
-        title: 'Integración Continua (CI/CD)',
-        description: 'Pipelines de build, test y despliegue automático con herramientas modernas.',
-        image: 'assets/img/tema32.png'
-      },
-      {
-        id: 3,
-        title: 'Kubernetes Básico',
-        description: 'Conceptos base para orquestar contenedores: pods, deployments y servicios.',
-        image: 'assets/img/tema33.png'
-      }
-    ]
-  }
-};
+type ModuleConfig = ModuleRecord;
 
 @Directive()
 export abstract class TopicDetailPageLogic implements OnInit {
@@ -112,7 +24,7 @@ export abstract class TopicDetailPageLogic implements OnInit {
   moduleId!: number;
   topicId!: number;
   moduleConfig!: ModuleConfig;
-  currentTopic!: Topic;
+  currentTopic!: TopicRecord;
   topicCompleted = false;
   showEvaluationModal = false;
 
@@ -146,7 +58,9 @@ export abstract class TopicDetailPageLogic implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private progress: ProgressService,
-    private router: Router
+    private router: Router,
+    private learningRepository: LearningRepository,
+    private sound: SoundService
   ) { }
 
   ngOnInit(): void {
@@ -156,8 +70,9 @@ export abstract class TopicDetailPageLogic implements OnInit {
     const modId = Number(modParam);
     const topicId = Number(topicParam);
 
-    this.moduleId = MODULES_CONFIG[modId] ? modId : 1;
-    this.moduleConfig = MODULES_CONFIG[this.moduleId];
+    const module = this.learningRepository.getModule(modId) ?? this.learningRepository.getModule(1)!;
+    this.moduleId = module.id;
+    this.moduleConfig = module;
 
     const foundTopic = this.moduleConfig.topics.find(t => t.id === topicId);
     this.currentTopic = foundTopic || this.moduleConfig.topics[0];
@@ -228,10 +143,6 @@ export abstract class TopicDetailPageLogic implements OnInit {
   }
 
   playBannerSound(): void {
-    const audio = new Audio('assets/img/banner2f.mp3');
-    audio.volume = 0.5;
-    audio.play().catch(error => {
-      console.warn('No se pudo reproducir el sonido:', error);
-    });
+    this.sound.playBannerSound();
   }
 }

@@ -11,34 +11,12 @@ import { LoginPageLogic } from './logic/login.page-logic';
 import { ModuleDetailPageLogic } from './logic/module-detail.page-logic';
 import { RegisterPageLogic } from './logic/register.page-logic';
 import { ResourcePageLogic } from './logic/resource.page-logic';
-import { SplashScreenPageLogic } from './logic/splash-screen.page-logic';
 import { TopicDetailPageLogic } from './logic/topic-detail.page-logic';
 import { WelcomePageLogic } from './logic/welcome.page-logic';
 import { AuthService } from '../../services/auth.service';
 import { ProgressService } from '../../services/progress.service';
 import { SoundService } from '../../services/sound.service';
-
-@Component({
-  selector: 'app-modern-splash',
-  templateUrl: './splash.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false
-})
-export class ModernSplashComponent extends SplashScreenPageLogic {
-  constructor(
-    private modernRouter: Router
-  ) {
-    super(modernRouter);
-  }
-
-  override ngOnInit(): void {
-    setTimeout(() => {
-      this.isExiting = true;
-      this.playStartSound();
-      setTimeout(() => this.modernRouter.navigate(['/nuevo/login']), 500);
-    }, 3500);
-  }
-}
+import { LearningRepository } from '../../core/repositories/learning.repository';
 
 @Component({
   selector: 'app-modern-login',
@@ -173,9 +151,11 @@ export class ModernWelcomeComponent extends WelcomePageLogic {
   constructor(
     auth: AuthService,
     private modernRouter: Router,
-    progress: ProgressService
+    progress: ProgressService,
+    learningRepository: LearningRepository,
+    sound: SoundService
   ) {
-    super(auth, modernRouter, progress);
+    super(auth, modernRouter, progress, learningRepository, sound);
   }
 
   override onModuleClick(module: Parameters<WelcomePageLogic['onModuleClick']>[0]): void {
@@ -201,9 +181,11 @@ export class ModernModuleDetailComponent extends ModuleDetailPageLogic {
   constructor(
     route: ActivatedRoute,
     progress: ProgressService,
-    private modernRouter: Router
+    private modernRouter: Router,
+    learningRepository: LearningRepository,
+    sound: SoundService
   ) {
-    super(route, progress, modernRouter);
+    super(route, progress, modernRouter, learningRepository, sound);
   }
 
   override onTopicClick(topic: Parameters<ModuleDetailPageLogic['onTopicClick']>[0]): void {
@@ -226,9 +208,11 @@ export class ModernTopicDetailComponent extends TopicDetailPageLogic {
   constructor(
     route: ActivatedRoute,
     progress: ProgressService,
-    private modernRouter: Router
+    private modernRouter: Router,
+    learningRepository: LearningRepository,
+    sound: SoundService
   ) {
-    super(route, progress, modernRouter);
+    super(route, progress, modernRouter, learningRepository, sound);
   }
 
   override onActivityClick(activity: Parameters<TopicDetailPageLogic['onActivityClick']>[0]): void {
